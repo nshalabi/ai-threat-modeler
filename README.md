@@ -32,6 +32,20 @@ npm install
 npm run dev
 ```
 
+## Sample Projects
+
+The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects that demonstrate common AI architectures and the kinds of findings Sonny produces. They are the fastest way to try the tool without building a model from scratch — just launch Sonny, choose **Open Project**, and pick one.
+
+| Sample | What it shows |
+| --- | --- |
+| [`rag-chatbot-public.aitm`](samples/rag-chatbot-public.aitm) | Public-facing RAG chatbot — common AI application attack surfaces (prompt injection, data exfiltration, hallucination handling). |
+| [`internal-ai-agent.aitm`](samples/internal-ai-agent.aitm) | Internal enterprise agent with tool access (DB queries, API calls, email) — agent autonomy and over-privileged tool risks. |
+| [`multi-provider-sensitive-data.aitm`](samples/multi-provider-sensitive-data.aitm) | Enterprise RAG handling regulated financial data across multiple model providers — data residency, multi-tenant, and provider trust risks. |
+| [`ml-training-pipeline.aitm`](samples/ml-training-pipeline.aitm) | Model fine-tuning workflow — training data integrity and supply chain risks. |
+| [`minimal-safe-architecture.aitm`](samples/minimal-safe-architecture.aitm) | A hardened reference architecture with recommended controls in place — useful as a contrast to the other samples. |
+
+After opening a sample, click **Analyze** in the toolbar to run the rules engine and see findings mapped to MITRE ATLAS, OWASP LLM Top 10, NIST AI RMF, and NIST CSF.
+
 ## Technology
 
 Built with Electron, React, TypeScript, React Flow, Zustand, Zod, and Tailwind CSS.
