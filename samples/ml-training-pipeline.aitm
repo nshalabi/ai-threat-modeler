@@ -1,0 +1,321 @@
+{
+  "version": "1.0",
+  "id": "sample-ml-training-pipeline",
+  "name": "ML Training Pipeline",
+  "description": "A model fine-tuning workflow demonstrating training data integrity and supply chain risks.",
+  "createdAt": "2026-04-06T00:00:00.000Z",
+  "updatedAt": "2026-04-06T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "node-public-dataset",
+      "type": "dataset-source",
+      "label": "Public Dataset (HuggingFace)",
+      "position": { "x": 0, "y": 250 },
+      "properties": {
+        "isExternal": true,
+        "hasInputValidation": false,
+        "dataClassification": "public"
+      }
+    },
+    {
+      "id": "node-partner-feed",
+      "type": "external-knowledge-source",
+      "label": "Partner Data Feed",
+      "position": { "x": 0, "y": 450 },
+      "properties": {
+        "isExternal": true,
+        "hasInputValidation": false,
+        "dataClassification": "confidential"
+      }
+    },
+    {
+      "id": "node-ingestion",
+      "type": "document-ingestion-pipeline",
+      "label": "Document Ingestion Pipeline",
+      "position": { "x": 300, "y": 350 },
+      "properties": {
+        "hasInputValidation": false,
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-training-repo",
+      "type": "training-data-repo",
+      "label": "Training Data Repository",
+      "position": { "x": 600, "y": 350 },
+      "properties": {
+        "isExternal": false,
+        "hasInputValidation": false,
+        "dataClassification": "confidential"
+      }
+    },
+    {
+      "id": "node-fine-tuning",
+      "type": "fine-tuning-pipeline",
+      "label": "Fine-Tuning Pipeline",
+      "position": { "x": 900, "y": 350 },
+      "properties": {
+        "hasInputValidation": false,
+        "dataClassification": "confidential",
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-base-model",
+      "type": "self-hosted-model",
+      "label": "Base Model (Downloaded)",
+      "position": { "x": 900, "y": 150 },
+      "properties": {
+        "isExternal": false,
+        "hasOutputFiltering": false,
+        "hasLogging": false,
+        "description": "Pre-trained base model downloaded from HuggingFace"
+      }
+    },
+    {
+      "id": "node-model-registry",
+      "type": "model-registry",
+      "label": "Model Registry",
+      "position": { "x": 1200, "y": 350 },
+      "properties": {
+        "hasRBAC": false,
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-inference",
+      "type": "inference-pipeline",
+      "label": "Inference Pipeline",
+      "position": { "x": 1500, "y": 350 },
+      "properties": {
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-monitoring",
+      "type": "model-monitoring",
+      "label": "Model Monitoring",
+      "position": { "x": 1500, "y": 150 },
+      "properties": {
+        "hasLogging": true
+      }
+    },
+    {
+      "id": "node-eval-engine",
+      "type": "evaluation-engine",
+      "label": "Evaluation Engine",
+      "position": { "x": 1200, "y": 150 },
+      "properties": {
+        "hasLogging": false
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-dataset-to-ingestion",
+      "source": "node-public-dataset",
+      "target": "node-ingestion",
+      "label": "Public dataset import",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "public",
+        "dataTypes": ["training-data"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-partner-to-ingestion",
+      "source": "node-partner-feed",
+      "target": "node-ingestion",
+      "label": "Partner data import",
+      "properties": {
+        "protocol": "SFTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["training-data", "pii"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-ingestion-to-repo",
+      "source": "node-ingestion",
+      "target": "node-training-repo",
+      "label": "Processed training data",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "confidential",
+        "dataTypes": ["training-data"],
+        "crossesTrustBoundary": false
+      }
+    },
+    {
+      "id": "flow-repo-to-finetuning",
+      "source": "node-training-repo",
+      "target": "node-fine-tuning",
+      "label": "Training data for fine-tuning",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["training-data"]
+      }
+    },
+    {
+      "id": "flow-basemodel-to-finetuning",
+      "source": "node-base-model",
+      "target": "node-fine-tuning",
+      "label": "Base model weights",
+      "properties": {
+        "protocol": "local",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-finetuning-to-registry",
+      "source": "node-fine-tuning",
+      "target": "node-model-registry",
+      "label": "Fine-tuned model artifact",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["general"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-registry-to-inference",
+      "source": "node-model-registry",
+      "target": "node-inference",
+      "label": "Model deployment",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-inference-to-monitoring",
+      "source": "node-inference",
+      "target": "node-monitoring",
+      "label": "Inference telemetry",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-registry-to-eval",
+      "source": "node-model-registry",
+      "target": "node-eval-engine",
+      "label": "Model for evaluation",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-eval-to-registry",
+      "source": "node-eval-engine",
+      "target": "node-model-registry",
+      "label": "Evaluation results",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "boundary-external-data",
+      "type": "partner-org",
+      "label": "External Data Sources",
+      "nodeIds": ["node-public-dataset", "node-partner-feed"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-training-env",
+      "type": "training-env",
+      "label": "Training Environment",
+      "nodeIds": ["node-ingestion", "node-training-repo", "node-fine-tuning", "node-base-model", "node-eval-engine"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-inference-env",
+      "type": "inference-env",
+      "label": "Inference Environment",
+      "nodeIds": ["node-model-registry", "node-inference", "node-monitoring"],
+      "properties": {}
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-project-overview",
+      "content": "This sample models an ML training pipeline that fine-tunes a downloaded base model using external data sources. It demonstrates training data integrity risks: external datasets without validation, a fine-tuning pipeline without input validation, missing logging across the pipeline, and an unauthenticated flow crossing the training/inference boundary. Running analysis should produce 6-10 findings.",
+      "category": "general",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-ingestion-todo",
+      "content": "Add data validation, schema checks, and anomaly detection to the ingestion pipeline",
+      "category": "todo",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-ingestion"
+    },
+    {
+      "id": "note-dataset-assumption",
+      "content": "HuggingFace dataset is assumed to be community-vetted but no formal integrity verification is in place",
+      "category": "assumption",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-public-dataset"
+    },
+    {
+      "id": "note-registry-todo",
+      "content": "Implement RBAC and model signing before promoting models to production inference",
+      "category": "todo",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-model-registry"
+    },
+    {
+      "id": "note-boundary-decision",
+      "content": "Training and inference environments are separated by a trust boundary to limit blast radius of training data poisoning",
+      "category": "decision",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    }
+  ],
+  "metadata": {
+    "samplePurpose": "Demonstrates training data integrity and supply chain risks in ML pipelines",
+    "expectedFindings": "6-10"
+  }
+}

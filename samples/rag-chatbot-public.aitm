@@ -1,0 +1,259 @@
+{
+  "version": "1.0",
+  "id": "sample-rag-chatbot-public",
+  "name": "RAG Chatbot (Public-Facing)",
+  "description": "A customer-facing chatbot with RAG pipeline demonstrating common AI application attack surfaces.",
+  "createdAt": "2026-04-06T00:00:00.000Z",
+  "updatedAt": "2026-04-06T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "node-customer",
+      "type": "external-actor",
+      "label": "Customer",
+      "position": { "x": 0, "y": 250 },
+      "properties": {
+        "internetFacing": true,
+        "isExternal": true,
+        "description": "External end-user accessing the chatbot via web browser"
+      }
+    },
+    {
+      "id": "node-chat-input",
+      "type": "prompt-input",
+      "label": "Chat Input",
+      "position": { "x": 250, "y": 250 },
+      "properties": {
+        "internetFacing": true,
+        "hasInputValidation": false,
+        "description": "Public-facing prompt input endpoint with no guardrails or moderation"
+      }
+    },
+    {
+      "id": "node-rag-orchestrator",
+      "type": "rag-orchestrator",
+      "label": "RAG Orchestrator",
+      "position": { "x": 500, "y": 250 },
+      "properties": {
+        "hasInputValidation": false,
+        "hasLogging": false,
+        "description": "Orchestrates retrieval-augmented generation pipeline"
+      }
+    },
+    {
+      "id": "node-vector-store",
+      "type": "vector-db",
+      "label": "Document Vector Store",
+      "position": { "x": 500, "y": 450 },
+      "properties": {
+        "dataClassification": "confidential",
+        "hasRBAC": false,
+        "description": "Stores embeddings of internal company knowledge base documents"
+      }
+    },
+    {
+      "id": "node-hosted-llm",
+      "type": "hosted-model-api",
+      "label": "Hosted LLM",
+      "position": { "x": 750, "y": 250 },
+      "properties": {
+        "isExternal": true,
+        "internetFacing": true,
+        "provider": "External Provider",
+        "hasOutputFiltering": false,
+        "hasLogging": false,
+        "modelType": "hosted-llm",
+        "description": "External hosted LLM used for generation"
+      }
+    },
+    {
+      "id": "node-output-processor",
+      "type": "output-post-processor",
+      "label": "Output Processor",
+      "position": { "x": 1000, "y": 250 },
+      "properties": {
+        "hasOutputFiltering": true,
+        "description": "Filters and sanitizes model outputs before delivery to user"
+      }
+    },
+    {
+      "id": "node-web-app",
+      "type": "web-app",
+      "label": "Chat Web App",
+      "position": { "x": 1250, "y": 250 },
+      "properties": {
+        "internetFacing": true,
+        "description": "Customer-facing web application serving the chat interface"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-customer-to-input",
+      "source": "node-customer",
+      "target": "node-chat-input",
+      "label": "User Prompt Submission",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "public",
+        "dataTypes": ["prompts"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-input-to-rag",
+      "source": "node-chat-input",
+      "target": "node-rag-orchestrator",
+      "label": "Validated Prompt",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-rag-to-vectordb",
+      "source": "node-rag-orchestrator",
+      "target": "node-vector-store",
+      "label": "Embedding Lookup",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["embeddings"],
+        "bidirectional": true
+      }
+    },
+    {
+      "id": "flow-rag-to-llm",
+      "source": "node-rag-orchestrator",
+      "target": "node-hosted-llm",
+      "label": "Augmented Prompt to LLM",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["prompts", "embeddings"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-llm-to-output",
+      "source": "node-hosted-llm",
+      "target": "node-output-processor",
+      "label": "Raw Model Response",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-output-to-webapp",
+      "source": "node-output-processor",
+      "target": "node-web-app",
+      "label": "Filtered Response",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-webapp-to-customer",
+      "source": "node-web-app",
+      "target": "node-customer",
+      "label": "Chat Response",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "public",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "boundary-internet",
+      "type": "public-internet",
+      "label": "Public Internet",
+      "nodeIds": ["node-customer"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-cloud",
+      "type": "cloud-tenant",
+      "label": "Cloud Environment",
+      "nodeIds": [
+        "node-chat-input",
+        "node-rag-orchestrator",
+        "node-vector-store",
+        "node-output-processor",
+        "node-web-app"
+      ],
+      "properties": {}
+    },
+    {
+      "id": "boundary-llm-provider",
+      "type": "model-provider",
+      "label": "External LLM Provider",
+      "nodeIds": ["node-hosted-llm"],
+      "properties": {}
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-project-overview",
+      "content": "This sample models a typical public-facing RAG chatbot. It is deliberately configured with common security gaps: no guardrails on the public prompt input, no moderation layer, confidential data sent to an external model provider, and missing logging on AI components. Running analysis should produce 5-8 findings.",
+      "category": "general",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-input-todo",
+      "content": "Need to add guardrail/moderation layer between input and RAG orchestrator",
+      "category": "todo",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-chat-input"
+    },
+    {
+      "id": "note-vectordb-assumption",
+      "content": "Assumes document store contains internal company knowledge base with confidential product documentation",
+      "category": "assumption",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-vector-store"
+    },
+    {
+      "id": "note-provider-decision",
+      "content": "Chose an external hosted LLM provider for this scenario to demonstrate external provider data exposure risks",
+      "category": "decision",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    }
+  ],
+  "metadata": {
+    "sampleType": "rag-chatbot",
+    "expectedFindings": "5-8",
+    "triggeredRules": ["RULE-001", "RULE-004", "RULE-005", "RULE-013", "RULE-014"]
+  }
+}

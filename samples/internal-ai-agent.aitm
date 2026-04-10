@@ -1,0 +1,365 @@
+{
+  "version": "1.0",
+  "id": "sample-internal-ai-agent",
+  "name": "Internal AI Agent with Tool Access",
+  "description": "An internal enterprise AI agent that can query databases, call APIs, and send emails — demonstrating agent security risks.",
+  "createdAt": "2026-04-06T00:00:00.000Z",
+  "updatedAt": "2026-04-06T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "node-employee",
+      "type": "external-actor",
+      "label": "Employee",
+      "position": { "x": 0, "y": 300 },
+      "properties": {
+        "internetFacing": false,
+        "isExternal": false,
+        "description": "Internal enterprise user interacting with the AI agent"
+      }
+    },
+    {
+      "id": "node-webapp",
+      "type": "web-app",
+      "label": "Internal Web App",
+      "position": { "x": 250, "y": 300 },
+      "properties": {
+        "internetFacing": false,
+        "hasInputValidation": true,
+        "description": "Internal-facing web application serving the agent interface"
+      }
+    },
+    {
+      "id": "node-agent",
+      "type": "ai-agent",
+      "label": "AI Agent",
+      "position": { "x": 500, "y": 300 },
+      "properties": {
+        "hasApprovalFlow": false,
+        "hasRBAC": false,
+        "hasLogging": false,
+        "description": "Autonomous AI agent with broad tool access and no safety controls"
+      }
+    },
+    {
+      "id": "node-llm",
+      "type": "self-hosted-model",
+      "label": "Self-Hosted LLM",
+      "position": { "x": 500, "y": 100 },
+      "properties": {
+        "isExternal": false,
+        "hasOutputFiltering": false,
+        "hasLogging": false,
+        "description": "Locally hosted language model powering the AI agent"
+      }
+    },
+    {
+      "id": "node-db-tool",
+      "type": "tool-connector",
+      "label": "DB Query Tool",
+      "position": { "x": 750, "y": 150 },
+      "properties": {
+        "isExternal": false,
+        "hasApprovalFlow": false,
+        "hasRBAC": false,
+        "description": "Tool connector enabling the agent to execute database queries"
+      }
+    },
+    {
+      "id": "node-api-tool",
+      "type": "tool-connector",
+      "label": "API Caller Tool",
+      "position": { "x": 750, "y": 300 },
+      "properties": {
+        "isExternal": true,
+        "hasApprovalFlow": false,
+        "hasRBAC": false,
+        "description": "Tool connector enabling the agent to call external APIs"
+      }
+    },
+    {
+      "id": "node-email-tool",
+      "type": "tool-connector",
+      "label": "Email Sender Tool",
+      "position": { "x": 750, "y": 450 },
+      "properties": {
+        "isExternal": true,
+        "hasApprovalFlow": false,
+        "hasRBAC": false,
+        "description": "Tool connector enabling the agent to send emails on behalf of users"
+      }
+    },
+    {
+      "id": "node-database",
+      "type": "database",
+      "label": "Employee Database",
+      "position": { "x": 1000, "y": 150 },
+      "properties": {
+        "dataClassification": "confidential",
+        "hasRBAC": true,
+        "description": "Internal database containing employee records and HR data"
+      }
+    },
+    {
+      "id": "node-third-party-api",
+      "type": "third-party-service",
+      "label": "Third-Party API",
+      "position": { "x": 1000, "y": 300 },
+      "properties": {
+        "isExternal": true,
+        "internetFacing": true,
+        "description": "External SaaS API consumed by the agent"
+      }
+    },
+    {
+      "id": "node-email-service",
+      "type": "third-party-service",
+      "label": "Email Service",
+      "position": { "x": 1000, "y": 450 },
+      "properties": {
+        "isExternal": true,
+        "internetFacing": true,
+        "description": "External email delivery service (e.g., SendGrid, SES)"
+      }
+    },
+    {
+      "id": "node-memory-store",
+      "type": "memory-store",
+      "label": "Memory Store",
+      "position": { "x": 500, "y": 500 },
+      "properties": {
+        "dataClassification": "confidential",
+        "handlesPII": true,
+        "description": "Persistent memory for agent conversation history and context"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-employee-to-webapp",
+      "source": "node-employee",
+      "target": "node-webapp",
+      "label": "User Request",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-webapp-to-agent",
+      "source": "node-webapp",
+      "target": "node-agent",
+      "label": "Validated Request",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-agent-to-llm",
+      "source": "node-agent",
+      "target": "node-llm",
+      "label": "Inference Request",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-llm-to-agent",
+      "source": "node-llm",
+      "target": "node-agent",
+      "label": "Model Response",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-agent-to-db-tool",
+      "source": "node-agent",
+      "target": "node-db-tool",
+      "label": "Database Query Command",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "confidential",
+        "dataTypes": ["general"],
+        "crossesTrustBoundary": false
+      }
+    },
+    {
+      "id": "flow-agent-to-api-tool",
+      "source": "node-agent",
+      "target": "node-api-tool",
+      "label": "API Call Command",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-agent-to-email-tool",
+      "source": "node-agent",
+      "target": "node-email-tool",
+      "label": "Send Email Command",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["pii"]
+      }
+    },
+    {
+      "id": "flow-db-tool-to-database",
+      "source": "node-db-tool",
+      "target": "node-database",
+      "label": "SQL Query",
+      "properties": {
+        "protocol": "TCP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["credentials", "general"]
+      }
+    },
+    {
+      "id": "flow-api-tool-to-third-party",
+      "source": "node-api-tool",
+      "target": "node-third-party-api",
+      "label": "External API Request",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-email-tool-to-service",
+      "source": "node-email-tool",
+      "target": "node-email-service",
+      "label": "Email Dispatch",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["pii"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-agent-to-memory",
+      "source": "node-agent",
+      "target": "node-memory-store",
+      "label": "Context Persistence",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "confidential",
+        "dataTypes": ["prompts", "model-outputs", "pii"]
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "boundary-corporate",
+      "type": "corporate-network",
+      "label": "Corporate Network",
+      "nodeIds": [
+        "node-employee",
+        "node-webapp",
+        "node-agent",
+        "node-llm",
+        "node-db-tool",
+        "node-api-tool",
+        "node-email-tool",
+        "node-database",
+        "node-memory-store"
+      ],
+      "properties": {}
+    },
+    {
+      "id": "boundary-third-party",
+      "type": "third-party-saas",
+      "label": "Third-Party SaaS",
+      "nodeIds": [
+        "node-third-party-api",
+        "node-email-service"
+      ],
+      "properties": {}
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-project-overview",
+      "content": "This sample models an internal enterprise AI agent with broad tool access but no safety controls. The agent lacks RBAC, human approval flows, and logging. All three tool connectors can execute actions autonomously. Running analysis should produce 10+ findings covering agent security, missing logging, and uncontrolled tool execution.",
+      "category": "general",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-agent-todo",
+      "content": "Implement human-in-the-loop approval for write operations and external communications",
+      "category": "todo",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-agent"
+    },
+    {
+      "id": "note-email-todo",
+      "content": "Email sending must require manager approval before the agent can send on behalf of users",
+      "category": "todo",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-email-tool"
+    },
+    {
+      "id": "note-network-assumption",
+      "content": "Assumes the AI agent operates within the corporate network and does not face the public internet directly",
+      "category": "assumption",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-llm-decision",
+      "content": "Using self-hosted model to keep data internal, but still need to add output filtering",
+      "category": "decision",
+      "author": "sample-generator",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-llm"
+    }
+  ],
+  "metadata": {
+    "sampleType": "internal-ai-agent",
+    "expectedFindings": "10+",
+    "triggeredRules": ["RULE-002", "RULE-003", "RULE-008", "RULE-013", "RULE-014"]
+  }
+}

@@ -1,0 +1,98 @@
+[
+  {
+    "id": "CTRL-001",
+    "name": "Input Validation and Sanitization",
+    "description": "Validate, sanitize, and constrain all inputs to AI components including prompts, tool arguments, and retrieved content to prevent injection and malformed data.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" },
+      { "framework": "NIST CSF", "id": "PR.DS-1", "name": "Protect - Data Security" }
+    ]
+  },
+  {
+    "id": "CTRL-002",
+    "name": "Output Filtering and Sanitization",
+    "description": "Filter, validate, and sanitize all model outputs before they are returned to users or passed to downstream systems to prevent data leakage and harmful content.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+    ]
+  },
+  {
+    "id": "CTRL-003",
+    "name": "Access Control and RBAC",
+    "description": "Enforce role-based access control on AI components, tool connectors, data sources, and model endpoints to ensure least-privilege access.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.AC-1", "name": "Protect - Identity Management and Access Control" },
+      { "framework": "NIST AI RMF", "id": "GV-1.1", "name": "Govern - Policies and Processes" }
+    ]
+  },
+  {
+    "id": "CTRL-004",
+    "name": "Human-in-the-Loop Approval",
+    "description": "Require human review and approval for high-impact actions initiated by AI agents, including data modifications, financial transactions, and external communications.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MP-4.1", "name": "Map - Human-AI Interaction" }
+    ]
+  },
+  {
+    "id": "CTRL-005",
+    "name": "Rate Limiting and Resource Management",
+    "description": "Apply rate limiting, request throttling, and resource quotas to model inference endpoints and AI-facing APIs to prevent denial of service and model extraction.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.PT-4", "name": "Protect - Protective Technology" }
+    ]
+  },
+  {
+    "id": "CTRL-006",
+    "name": "Data Classification and Handling",
+    "description": "Classify all data flowing through AI systems and enforce handling controls appropriate to each classification level, including masking, redaction, and access restrictions.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.DS-1", "name": "Protect - Data Security" },
+      { "framework": "NIST AI RMF", "id": "MG-3.1", "name": "Manage AI Risks - Risk Response" }
+    ]
+  },
+  {
+    "id": "CTRL-007",
+    "name": "Model Provenance and Integrity Verification",
+    "description": "Verify the provenance, integrity, and authenticity of models, weights, and dependencies before deployment. Maintain a model bill-of-materials.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MG-2.3", "name": "Manage AI Risks - Documentation and Transparency" },
+      { "framework": "NIST CSF", "id": "PR.DS-6", "name": "Protect - Integrity Checking" }
+    ]
+  },
+  {
+    "id": "CTRL-008",
+    "name": "Monitoring and Anomaly Detection",
+    "description": "Continuously monitor AI system behavior, inputs, outputs, and performance for anomalies, drift, misuse, and security events. Alert on suspicious patterns.",
+    "category": "detective",
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "DE.CM-7", "name": "Detect - Security Continuous Monitoring" },
+      { "framework": "NIST AI RMF", "id": "MG-3.2", "name": "Manage AI Risks - Monitoring" }
+    ]
+  },
+  {
+    "id": "CTRL-009",
+    "name": "Encryption in Transit and at Rest",
+    "description": "Encrypt all data in transit (TLS 1.2+) and at rest, including model weights, embeddings, training data, and inference payloads.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.DS-2", "name": "Protect - Data-in-Transit" },
+      { "framework": "NIST CSF", "id": "PR.DS-1", "name": "Protect - Data-at-Rest" }
+    ]
+  },
+  {
+    "id": "CTRL-010",
+    "name": "Guardrail and Safety Filter Deployment",
+    "description": "Deploy input and output guardrails, content safety filters, and moderation layers to enforce policy constraints on AI system interactions.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+    ]
+  }
+]

@@ -1,0 +1,437 @@
+{
+  "version": "1.0",
+  "id": "sample-minimal-safe-architecture",
+  "name": "Minimal Safe Architecture",
+  "description": "A well-configured AI system with all recommended security controls in place, demonstrating what a hardened architecture looks like.",
+  "createdAt": "2026-04-06T00:00:00.000Z",
+  "updatedAt": "2026-04-06T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "node-user",
+      "type": "external-actor",
+      "label": "End User",
+      "position": { "x": 0, "y": 300 },
+      "properties": {
+        "internetFacing": true,
+        "isExternal": true,
+        "description": "External end user accessing the system via browser"
+      }
+    },
+    {
+      "id": "node-webapp",
+      "type": "web-app",
+      "label": "Secure Web App",
+      "position": { "x": 250, "y": 300 },
+      "properties": {
+        "internetFacing": true,
+        "hasInputValidation": true,
+        "hasLogging": true,
+        "description": "Hardened web application with input validation and logging"
+      }
+    },
+    {
+      "id": "node-idp",
+      "type": "identity-provider",
+      "label": "Identity Provider",
+      "position": { "x": 250, "y": 100 },
+      "properties": {
+        "handlesCredentials": true,
+        "hasRBAC": true,
+        "hasLogging": true,
+        "description": "Centralized identity provider with RBAC and audit logging"
+      }
+    },
+    {
+      "id": "node-guardrail",
+      "type": "guardrail",
+      "label": "Input Guardrail",
+      "position": { "x": 500, "y": 300 },
+      "properties": {
+        "hasInputValidation": true,
+        "hasOutputFiltering": true,
+        "hasLogging": true,
+        "description": "Input guardrail filtering prompt injection and malicious content"
+      }
+    },
+    {
+      "id": "node-rag",
+      "type": "rag-orchestrator",
+      "label": "RAG Orchestrator",
+      "position": { "x": 750, "y": 300 },
+      "properties": {
+        "hasInputValidation": true,
+        "hasLogging": true,
+        "hasRBAC": true,
+        "description": "RAG orchestrator with RBAC and input validation"
+      }
+    },
+    {
+      "id": "node-embedding",
+      "type": "embedding-model",
+      "label": "Embedding Model",
+      "position": { "x": 750, "y": 500 },
+      "properties": {
+        "isExternal": false,
+        "hasLogging": true,
+        "description": "Self-hosted embedding model for generating vector representations"
+      }
+    },
+    {
+      "id": "node-vector-db",
+      "type": "vector-db",
+      "label": "Knowledge Base",
+      "position": { "x": 1000, "y": 500 },
+      "properties": {
+        "dataClassification": "internal",
+        "hasRBAC": true,
+        "hasLogging": true,
+        "internetFacing": false,
+        "description": "Internal vector database with RBAC and no internet exposure"
+      }
+    },
+    {
+      "id": "node-llm",
+      "type": "self-hosted-model",
+      "label": "Self-Hosted LLM",
+      "position": { "x": 1000, "y": 300 },
+      "properties": {
+        "isExternal": false,
+        "hasOutputFiltering": true,
+        "hasLogging": true,
+        "hasInputValidation": true,
+        "description": "Self-hosted large language model with input validation and output filtering"
+      }
+    },
+    {
+      "id": "node-moderation",
+      "type": "moderation-layer",
+      "label": "Moderation Layer",
+      "position": { "x": 1250, "y": 300 },
+      "properties": {
+        "hasInputValidation": true,
+        "hasOutputFiltering": true,
+        "hasLogging": true,
+        "description": "Moderation layer checking model outputs for policy violations"
+      }
+    },
+    {
+      "id": "node-reviewer",
+      "type": "human-in-the-loop",
+      "label": "Human Reviewer",
+      "position": { "x": 1250, "y": 100 },
+      "properties": {
+        "hasApprovalFlow": true,
+        "hasLogging": true,
+        "description": "Human reviewer with mandatory approval flow for all outputs"
+      }
+    },
+    {
+      "id": "node-output",
+      "type": "output-post-processor",
+      "label": "Output Post-Processor",
+      "position": { "x": 1500, "y": 300 },
+      "properties": {
+        "hasOutputFiltering": true,
+        "hasLogging": true,
+        "description": "Post-processor filtering and sanitizing final output"
+      }
+    },
+    {
+      "id": "node-logging",
+      "type": "logging-monitoring",
+      "label": "Logging & Monitoring",
+      "position": { "x": 750, "y": 100 },
+      "properties": {
+        "hasLogging": true,
+        "description": "Centralized logging and monitoring for all components"
+      }
+    },
+    {
+      "id": "node-secrets",
+      "type": "secrets-vault",
+      "label": "Secrets Vault",
+      "position": { "x": 500, "y": 100 },
+      "properties": {
+        "handlesCredentials": true,
+        "hasRBAC": true,
+        "dataClassification": "restricted",
+        "description": "Secure secrets vault with RBAC for credential management"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-user-to-webapp",
+      "source": "node-user",
+      "target": "node-webapp",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "public",
+        "dataTypes": ["prompts"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-webapp-to-idp",
+      "source": "node-webapp",
+      "target": "node-idp",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
+      "id": "flow-webapp-to-guardrail",
+      "source": "node-webapp",
+      "target": "node-guardrail",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-guardrail-to-rag",
+      "source": "node-guardrail",
+      "target": "node-rag",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-rag-to-embedding",
+      "source": "node-rag",
+      "target": "node-embedding",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-embedding-to-vectordb",
+      "source": "node-embedding",
+      "target": "node-vector-db",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["embeddings"]
+      }
+    },
+    {
+      "id": "flow-vectordb-to-rag",
+      "source": "node-vector-db",
+      "target": "node-rag",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["embeddings"]
+      }
+    },
+    {
+      "id": "flow-rag-to-llm",
+      "source": "node-rag",
+      "target": "node-llm",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts", "embeddings"]
+      }
+    },
+    {
+      "id": "flow-llm-to-moderation",
+      "source": "node-llm",
+      "target": "node-moderation",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-moderation-to-reviewer",
+      "source": "node-moderation",
+      "target": "node-reviewer",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-reviewer-to-output",
+      "source": "node-reviewer",
+      "target": "node-output",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-output-to-webapp",
+      "source": "node-output",
+      "target": "node-webapp",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-webapp-to-user",
+      "source": "node-webapp",
+      "target": "node-user",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "public",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-secrets-to-webapp",
+      "source": "node-secrets",
+      "target": "node-webapp",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "restricted",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
+      "id": "flow-rag-to-logging",
+      "source": "node-rag",
+      "target": "node-logging",
+      "label": "HTTPS",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "boundary-user-device",
+      "type": "end-user-device",
+      "label": "End User Device",
+      "nodeIds": ["node-user"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-cloud",
+      "type": "cloud-tenant",
+      "label": "Cloud Environment",
+      "nodeIds": [
+        "node-webapp",
+        "node-idp",
+        "node-guardrail",
+        "node-rag",
+        "node-embedding",
+        "node-vector-db",
+        "node-llm",
+        "node-moderation",
+        "node-reviewer",
+        "node-output",
+        "node-logging",
+        "node-secrets"
+      ],
+      "properties": {}
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-overview",
+      "content": "This sample demonstrates a well-configured AI architecture with defense-in-depth. Every component has logging enabled, RBAC where applicable, input validation, and output filtering. The model is self-hosted (no external provider data exposure). Guardrails filter input, moderation checks output, and a human reviewer approves before delivery. Running analysis should produce zero or very few findings.",
+      "category": "general",
+      "author": "Security Architect",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-self-hosted-decision",
+      "content": "Self-hosted LLM chosen specifically to avoid sending any data to external model providers — eliminates the entire class of data exposure risks",
+      "category": "decision",
+      "author": "Security Architect",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-hitl-decision",
+      "content": "Human-in-the-loop review is mandatory for all outputs in this architecture, even though it adds latency — security over speed tradeoff",
+      "category": "decision",
+      "author": "Security Architect",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-reviewer"
+    },
+    {
+      "id": "note-cloud-assumption",
+      "content": "Assumes all components run within a single cloud tenant with network-level isolation — no cross-tenant traffic",
+      "category": "assumption",
+      "author": "Security Architect",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-guardrail-placement",
+      "content": "Input guardrail placed before the RAG orchestrator to catch prompt injection attempts before any retrieval or model interaction occurs",
+      "category": "decision",
+      "author": "Security Architect",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-guardrail"
+    }
+  ],
+  "metadata": {
+    "samplePurpose": "Demonstrates a hardened AI architecture with all recommended security controls — expected to produce zero or very few findings during threat analysis"
+  }
+}

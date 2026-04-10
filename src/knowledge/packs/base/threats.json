@@ -1,0 +1,139 @@
+[
+  {
+    "id": "THR-001",
+    "name": "Direct Prompt Injection",
+    "description": "An attacker crafts malicious input directly in the prompt to manipulate the LLM into performing unintended actions, bypassing instructions, or revealing system prompts.",
+    "category": "prompt-security",
+    "severity": "critical",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM01", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0051", "name": "LLM Prompt Injection", "url": "https://atlas.mitre.org/techniques/AML.T0051" }
+    ],
+    "mitigationIds": ["MIT-001", "MIT-010"]
+  },
+  {
+    "id": "THR-002",
+    "name": "Indirect Prompt Injection",
+    "description": "Malicious instructions embedded in external data sources (web pages, documents, emails) are retrieved by the LLM during RAG or browsing, causing unintended behavior.",
+    "category": "prompt-security",
+    "severity": "critical",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM01", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0051.001", "name": "LLM Prompt Injection: Indirect", "url": "https://atlas.mitre.org/techniques/AML.T0051.001" }
+    ],
+    "mitigationIds": ["MIT-001", "MIT-002", "MIT-010"]
+  },
+  {
+    "id": "THR-003",
+    "name": "Training Data Poisoning",
+    "description": "An adversary manipulates the training or fine-tuning data to introduce backdoors, biases, or degraded performance into the model.",
+    "category": "data-integrity",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM03", "name": "Training Data Poisoning", "url": "https://genai.owasp.org/llmrisk/llm03-training-data-poisoning/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0020", "name": "Poison Training Data", "url": "https://atlas.mitre.org/techniques/AML.T0020" }
+    ],
+    "mitigationIds": ["MIT-007", "MIT-012"]
+  },
+  {
+    "id": "THR-004",
+    "name": "Model Denial of Service",
+    "description": "An attacker sends resource-intensive queries or high volumes of requests to exhaust model inference resources, causing service degradation or outage.",
+    "category": "availability",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM04", "name": "Model Denial of Service", "url": "https://genai.owasp.org/llmrisk/llm04-model-denial-of-service/" }
+    ],
+    "mitigationIds": ["MIT-005"]
+  },
+  {
+    "id": "THR-005",
+    "name": "Sensitive Information Disclosure via Model Output",
+    "description": "The model inadvertently reveals sensitive information (PII, credentials, proprietary data) that was present in training data, context window, or retrieved documents.",
+    "category": "data-exposure",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM06", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/" }
+    ],
+    "mitigationIds": ["MIT-002", "MIT-006", "MIT-009"]
+  },
+  {
+    "id": "THR-006",
+    "name": "Insecure Plugin or Tool Execution",
+    "description": "An AI agent or LLM invokes plugins or tools without proper authorization, input validation, or sandboxing, allowing unintended side effects or code execution.",
+    "category": "agent-security",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM07", "name": "Insecure Plugin Design", "url": "https://genai.owasp.org/llmrisk/llm07-insecure-plugin-design/" }
+    ],
+    "mitigationIds": ["MIT-003", "MIT-004"]
+  },
+  {
+    "id": "THR-007",
+    "name": "Excessive Agency and Unauthorized Actions",
+    "description": "An AI agent is granted overly broad permissions or autonomy, enabling it to take consequential actions (data modification, financial transactions) without adequate human oversight.",
+    "category": "agent-security",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM08", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm08-excessive-agency/" }
+    ],
+    "mitigationIds": ["MIT-003", "MIT-004"]
+  },
+  {
+    "id": "THR-008",
+    "name": "Model Supply Chain Compromise",
+    "description": "Use of tampered, backdoored, or vulnerable pre-trained models, libraries, or dependencies from untrusted sources introduces security risks into the AI system.",
+    "category": "supply-chain",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM05", "name": "Supply Chain Vulnerabilities", "url": "https://genai.owasp.org/llmrisk/llm05-supply-chain-vulnerabilities/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "ML Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" }
+    ],
+    "mitigationIds": ["MIT-008"]
+  },
+  {
+    "id": "THR-009",
+    "name": "Retrieval Augmentation Data Leakage",
+    "description": "Sensitive documents indexed in a vector database are exposed to unauthorized users through the RAG pipeline due to insufficient access controls on retrieval results.",
+    "category": "data-exposure",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM06", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/" }
+    ],
+    "mitigationIds": ["MIT-003", "MIT-006"]
+  },
+  {
+    "id": "THR-010",
+    "name": "Embedding Inversion and Data Extraction",
+    "description": "An attacker extracts or reconstructs sensitive information from vector embeddings stored in a vector database through inversion techniques.",
+    "category": "data-exposure",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "MITRE ATLAS", "id": "AML.T0024.002", "name": "Infer Training Data Membership", "url": "https://atlas.mitre.org/techniques/AML.T0024.002" }
+    ],
+    "mitigationIds": ["MIT-006", "MIT-009"]
+  },
+  {
+    "id": "THR-011",
+    "name": "Adversarial Input Evasion",
+    "description": "An attacker crafts inputs specifically designed to cause the model to produce incorrect outputs, misclassifications, or bypass safety filters.",
+    "category": "model-security",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "MITRE ATLAS", "id": "AML.T0015", "name": "Evade ML Model", "url": "https://atlas.mitre.org/techniques/AML.T0015" }
+    ],
+    "mitigationIds": ["MIT-001", "MIT-010", "MIT-011"]
+  },
+  {
+    "id": "THR-012",
+    "name": "Model Theft and Extraction",
+    "description": "An attacker systematically queries a model to reconstruct a functionally equivalent copy, stealing proprietary model weights or capabilities.",
+    "category": "model-security",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM10", "name": "Model Theft", "url": "https://genai.owasp.org/llmrisk/llm10-model-theft/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0024", "name": "Exfiltration via ML Inference API", "url": "https://atlas.mitre.org/techniques/AML.T0024" }
+    ],
+    "mitigationIds": ["MIT-005", "MIT-011"]
+  }
+]

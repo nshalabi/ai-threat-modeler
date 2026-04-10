@@ -1,0 +1,110 @@
+[
+  {
+    "id": "MIT-001",
+    "name": "Implement Prompt Input Validation and Filtering",
+    "description": "Apply input validation rules, character filtering, length limits, and prompt injection detection to all user-supplied prompts before they reach the model.",
+    "controlIds": ["CTRL-001", "CTRL-010"],
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM01", "name": "Prompt Injection - Mitigations" }
+    ]
+  },
+  {
+    "id": "MIT-002",
+    "name": "Deploy Output Sanitization and PII Redaction",
+    "description": "Scan and filter model outputs for sensitive information, PII, credentials, and harmful content before delivering to users or downstream systems.",
+    "controlIds": ["CTRL-002", "CTRL-006"],
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM06", "name": "Sensitive Information Disclosure - Mitigations" }
+    ]
+  },
+  {
+    "id": "MIT-003",
+    "name": "Enforce Least-Privilege Access Controls on AI Components",
+    "description": "Apply RBAC and least-privilege principles to all AI agent tool connectors, plugins, data source access, and model endpoints.",
+    "controlIds": ["CTRL-003"],
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.AC-1", "name": "Protect - Identity Management and Access Control" }
+    ]
+  },
+  {
+    "id": "MIT-004",
+    "name": "Require Human Approval for Consequential Agent Actions",
+    "description": "Configure AI agents to require human-in-the-loop approval for high-impact actions such as data writes, external API calls, financial operations, and permission changes.",
+    "controlIds": ["CTRL-004"],
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MP-4.1", "name": "Map - Human-AI Interaction" }
+    ]
+  },
+  {
+    "id": "MIT-005",
+    "name": "Apply Rate Limiting and Query Throttling",
+    "description": "Enforce rate limits, request quotas, and query complexity limits on model inference endpoints to prevent DoS attacks and systematic model extraction.",
+    "controlIds": ["CTRL-005"],
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.PT-4", "name": "Protect - Protective Technology" }
+    ]
+  },
+  {
+    "id": "MIT-006",
+    "name": "Classify and Control Data Sent to AI Systems",
+    "description": "Implement data classification tagging on all flows to AI components. Block or mask confidential and restricted data before sending to external model providers.",
+    "controlIds": ["CTRL-006"],
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.DS-1", "name": "Protect - Data Security" }
+    ]
+  },
+  {
+    "id": "MIT-007",
+    "name": "Validate Training Data Provenance and Integrity",
+    "description": "Verify the source, integrity, and quality of all training and fine-tuning datasets. Scan for poisoned samples, adversarial examples, and data quality issues.",
+    "controlIds": ["CTRL-007", "CTRL-006"],
+    "frameworkRefs": [
+      { "framework": "MITRE ATLAS", "id": "AML.T0020", "name": "Poison Training Data" }
+    ]
+  },
+  {
+    "id": "MIT-008",
+    "name": "Verify Model Supply Chain Integrity",
+    "description": "Verify model provenance, check cryptographic signatures, and validate model checksums before deployment. Maintain a model SBOM and scan dependencies for vulnerabilities.",
+    "controlIds": ["CTRL-007"],
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM05", "name": "Supply Chain Vulnerabilities - Mitigations" }
+    ]
+  },
+  {
+    "id": "MIT-009",
+    "name": "Encrypt All Data Flows to and from AI Components",
+    "description": "Ensure TLS 1.2+ encryption on all data flows carrying prompts, model outputs, embeddings, and training data, especially those crossing trust boundaries.",
+    "controlIds": ["CTRL-009"],
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.DS-2", "name": "Protect - Data-in-Transit" }
+    ]
+  },
+  {
+    "id": "MIT-010",
+    "name": "Deploy Guardrails on Model Input and Output",
+    "description": "Deploy dedicated guardrail components or moderation layers that inspect and filter both inputs to and outputs from LLMs for policy violations, injection patterns, and harmful content.",
+    "controlIds": ["CTRL-010", "CTRL-001", "CTRL-002"],
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+    ]
+  },
+  {
+    "id": "MIT-011",
+    "name": "Enable Continuous Monitoring and Anomaly Detection",
+    "description": "Deploy monitoring for model inference patterns, output quality drift, unusual query volumes, and potential adversarial probing. Set up alerts for anomalous behavior.",
+    "controlIds": ["CTRL-008"],
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "DE.CM-7", "name": "Detect - Security Continuous Monitoring" }
+    ]
+  },
+  {
+    "id": "MIT-012",
+    "name": "Implement Data Pipeline Validation for Training",
+    "description": "Add integrity checks, schema validation, and anomaly detection to data ingestion pipelines feeding training and fine-tuning processes.",
+    "controlIds": ["CTRL-006", "CTRL-007"],
+    "frameworkRefs": [
+      { "framework": "MITRE ATLAS", "id": "AML.T0020", "name": "Poison Training Data" }
+    ]
+  }
+]

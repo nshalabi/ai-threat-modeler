@@ -1,0 +1,117 @@
+@import '@xyflow/react/dist/style.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --surface-0: #0a0a0f;
+  --surface-1: #12121a;
+  --surface-2: #1a1a24;
+  --surface-3: #22222e;
+  --accent: #6366f1;
+  --accent-hover: #818cf8;
+  --text-primary: #e2e8f0;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+  --border: #2e2e3a;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--surface-0);
+  color: var(--text-primary);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100vw;
+  height: 100vh;
+}
+
+/* Scrollbar styles */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-3);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* React Flow dark theme overrides */
+.react-flow__background {
+  background-color: var(--surface-0) !important;
+}
+
+.react-flow__minimap {
+  background-color: var(--surface-1) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+}
+
+.react-flow__controls {
+  border: 1px solid var(--border) !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background-color: var(--surface-2) !important;
+  border-bottom: 1px solid var(--border) !important;
+  fill: var(--text-secondary) !important;
+}
+
+.react-flow__controls-button:hover {
+  background-color: var(--surface-3) !important;
+}
+
+.react-flow__edge-path {
+  stroke: var(--text-muted) !important;
+  stroke-width: 2;
+}
+
+.react-flow__edge.selected .react-flow__edge-path {
+  stroke: var(--accent) !important;
+  stroke-width: 2.5;
+}
+
+.react-flow__handle {
+  width: 8px !important;
+  height: 8px !important;
+  background-color: var(--text-muted) !important;
+  border: 2px solid var(--surface-2) !important;
+}
+
+.react-flow__handle:hover {
+  background-color: var(--accent) !important;
+}
+
+.react-flow__attribution {
+  display: none !important;
+}
+
+/* Form field styles */
+.field-input {
+  @apply w-full px-2.5 py-1.5 text-xs bg-[#0a0a0f] border border-[#2e2e3a] rounded
+         text-[#e2e8f0] placeholder-[#64748b]
+         focus:outline-none focus:border-[#6366f1]
+         transition-colors;
+}

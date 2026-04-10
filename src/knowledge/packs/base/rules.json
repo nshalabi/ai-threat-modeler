@@ -1,0 +1,225 @@
+[
+  {
+    "id": "RULE-001",
+    "name": "Sensitive data sent to external model provider",
+    "description": "A data flow carrying confidential or restricted data targets a hosted model API, risking data exposure to a third party.",
+    "severity": "high",
+    "category": "data-exposure",
+    "conditions": [
+      { "target": "flow", "field": "properties.dataClassification", "operator": "in", "value": ["confidential", "restricted"] },
+      { "target": "node", "field": "type", "operator": "equals", "value": "hosted-model-api" }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["hosted-model-api"] },
+    "threatIds": ["THR-005"],
+    "mitigationIds": ["MIT-006", "MIT-009"],
+    "recommendation": "Classify data before sending to external model providers. Apply data masking, use private endpoints, or switch to self-hosted models for sensitive workloads."
+  },
+  {
+    "id": "RULE-002",
+    "name": "AI agent or tool connector without approval flow",
+    "description": "An AI agent or tool connector does not have a human-in-the-loop approval flow configured, allowing autonomous consequential actions.",
+    "severity": "high",
+    "category": "agent-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["ai-agent", "tool-connector"] },
+      { "target": "node", "field": "properties.hasApprovalFlow", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["ai-agent", "tool-connector"] },
+    "threatIds": ["THR-007"],
+    "mitigationIds": ["MIT-004"],
+    "recommendation": "Configure human-in-the-loop approval for high-impact actions. Implement approval workflows for data modifications, external calls, and financial operations."
+  },
+  {
+    "id": "RULE-003",
+    "name": "AI agent or tool connector without RBAC",
+    "description": "An AI agent or tool connector lacks role-based access control, potentially allowing excessive permissions.",
+    "severity": "high",
+    "category": "agent-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["ai-agent", "tool-connector"] },
+      { "target": "node", "field": "properties.hasRBAC", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["ai-agent", "tool-connector"] },
+    "threatIds": ["THR-006", "THR-007"],
+    "mitigationIds": ["MIT-003"],
+    "recommendation": "Implement RBAC on all AI agent tool connectors. Apply least-privilege principles and scope permissions to only the resources and actions required."
+  },
+  {
+    "id": "RULE-004",
+    "name": "Public-facing prompt input without guardrails",
+    "description": "A prompt input component is internet-facing but has no input validation or guardrail configured, leaving it vulnerable to prompt injection.",
+    "severity": "critical",
+    "category": "prompt-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "equals", "value": "prompt-input" },
+      { "target": "node", "field": "properties.internetFacing", "operator": "equals", "value": true },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["prompt-input"] },
+    "threatIds": ["THR-001"],
+    "mitigationIds": ["MIT-001", "MIT-010"],
+    "recommendation": "Deploy input validation and guardrails on all public-facing prompt inputs. Implement prompt injection detection, input sanitization, and content policy enforcement."
+  },
+  {
+    "id": "RULE-005",
+    "name": "Public-facing prompt input without moderation",
+    "description": "A prompt input component is internet-facing but no moderation layer is present in the data flow path to the model.",
+    "severity": "high",
+    "category": "prompt-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "equals", "value": "prompt-input" },
+      { "target": "node", "field": "properties.internetFacing", "operator": "equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["prompt-input"] },
+    "threatIds": ["THR-001", "THR-011"],
+    "mitigationIds": ["MIT-001", "MIT-010"],
+    "recommendation": "Add a moderation layer or content safety filter between public prompt inputs and the LLM to catch harmful or adversarial inputs."
+  },
+  {
+    "id": "RULE-006",
+    "name": "Fine-tuning pipeline with external or untrusted data",
+    "description": "A fine-tuning pipeline consumes data from an external dataset source without apparent validation controls, risking training data poisoning.",
+    "severity": "high",
+    "category": "data-integrity",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "equals", "value": "fine-tuning-pipeline" },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["fine-tuning-pipeline"] },
+    "threatIds": ["THR-003"],
+    "mitigationIds": ["MIT-007", "MIT-012"],
+    "recommendation": "Validate all training data sources for integrity and provenance. Implement data pipeline validation, anomaly detection, and review processes for fine-tuning datasets."
+  },
+  {
+    "id": "RULE-007",
+    "name": "Vector database accessible from public boundary",
+    "description": "A vector database is included in a public-internet trust boundary or lacks access controls, risking unauthorized access to indexed documents and embeddings.",
+    "severity": "high",
+    "category": "data-exposure",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "equals", "value": "vector-db" },
+      { "target": "node", "field": "properties.internetFacing", "operator": "equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["vector-db"] },
+    "threatIds": ["THR-009", "THR-010"],
+    "mitigationIds": ["MIT-003", "MIT-006"],
+    "recommendation": "Ensure vector databases are not directly internet-facing. Place behind API gateways with authentication and RBAC. Restrict access to authorized RAG pipelines only."
+  },
+  {
+    "id": "RULE-008",
+    "name": "Model outputs triggering actions without human review",
+    "description": "A data flow from an LLM or AI agent directly triggers a tool connector or backend service action without a human-in-the-loop or approval step in between.",
+    "severity": "medium",
+    "category": "agent-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["tool-connector", "plugin"] },
+      { "target": "node", "field": "properties.hasApprovalFlow", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["tool-connector", "plugin"] },
+    "threatIds": ["THR-006", "THR-007"],
+    "mitigationIds": ["MIT-004"],
+    "recommendation": "Add human-in-the-loop review for consequential actions triggered by model outputs. Implement approval workflows for write operations and external interactions."
+  },
+  {
+    "id": "RULE-009",
+    "name": "Unencrypted data flow crossing trust boundary",
+    "description": "A data flow that crosses a trust boundary is not encrypted, exposing data to interception.",
+    "severity": "high",
+    "category": "data-exposure",
+    "conditions": [
+      { "target": "flow", "field": "properties.encrypted", "operator": "equals", "value": false },
+      { "target": "flow", "field": "properties.crossesTrustBoundary", "operator": "equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "threatIds": ["THR-005"],
+    "mitigationIds": ["MIT-009"],
+    "recommendation": "Encrypt all data flows crossing trust boundaries using TLS 1.2+ or higher. Use mutual TLS for service-to-service communication across boundary lines."
+  },
+  {
+    "id": "RULE-010",
+    "name": "Unauthenticated data flow crossing trust boundary",
+    "description": "A data flow crossing a trust boundary does not require authentication, allowing unauthorized access.",
+    "severity": "high",
+    "category": "access-control",
+    "conditions": [
+      { "target": "flow", "field": "properties.authenticated", "operator": "equals", "value": false },
+      { "target": "flow", "field": "properties.crossesTrustBoundary", "operator": "equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "threatIds": ["THR-009"],
+    "mitigationIds": ["MIT-003"],
+    "recommendation": "Require authentication on all data flows that cross trust boundaries. Use API keys, OAuth tokens, or mutual TLS certificates."
+  },
+  {
+    "id": "RULE-011",
+    "name": "Credentials in unencrypted data flow",
+    "description": "A data flow carrying credentials is not encrypted, exposing sensitive authentication data.",
+    "severity": "critical",
+    "category": "data-exposure",
+    "conditions": [
+      { "target": "flow", "field": "properties.dataTypes", "operator": "contains", "value": "credentials" },
+      { "target": "flow", "field": "properties.encrypted", "operator": "equals", "value": false }
+    ],
+    "logicOperator": "and",
+    "threatIds": ["THR-005"],
+    "mitigationIds": ["MIT-009"],
+    "recommendation": "Immediately encrypt all data flows carrying credentials. Use TLS 1.2+ and consider additional encryption layers for credential transport."
+  },
+  {
+    "id": "RULE-012",
+    "name": "Training data from external source without validation",
+    "description": "A training data repository or dataset source is marked as external but lacks input validation controls, risking data poisoning.",
+    "severity": "high",
+    "category": "data-integrity",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["training-data-repo", "dataset-source"] },
+      { "target": "node", "field": "properties.isExternal", "operator": "equals", "value": true },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["training-data-repo", "dataset-source"] },
+    "threatIds": ["THR-003"],
+    "mitigationIds": ["MIT-007", "MIT-012"],
+    "recommendation": "Validate all external training data sources. Implement data quality checks, provenance verification, and anomaly scanning before use in training pipelines."
+  },
+  {
+    "id": "RULE-013",
+    "name": "AI component without logging or monitoring",
+    "description": "An AI component (LLM, agent, inference pipeline) does not have logging enabled, preventing detection of misuse or anomalous behavior.",
+    "severity": "medium",
+    "category": "observability",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["llm", "ai-agent", "hosted-model-api", "self-hosted-model", "inference-pipeline", "rag-orchestrator"] },
+      { "target": "node", "field": "properties.hasLogging", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["llm", "ai-agent", "hosted-model-api", "self-hosted-model", "inference-pipeline", "rag-orchestrator"] },
+    "threatIds": ["THR-001", "THR-012"],
+    "mitigationIds": ["MIT-011"],
+    "recommendation": "Enable logging and monitoring on all AI components. Log prompts, outputs, latency, error rates, and unusual query patterns. Integrate with SIEM or observability platform."
+  },
+  {
+    "id": "RULE-014",
+    "name": "LLM without output filtering",
+    "description": "An LLM or model component does not have output filtering enabled, allowing potentially harmful, biased, or sensitive content to reach users.",
+    "severity": "medium",
+    "category": "output-safety",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["llm", "hosted-model-api", "self-hosted-model"] },
+      { "target": "node", "field": "properties.hasOutputFiltering", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["llm", "hosted-model-api", "self-hosted-model"] },
+    "threatIds": ["THR-005"],
+    "mitigationIds": ["MIT-002", "MIT-010"],
+    "recommendation": "Deploy output filtering on all LLM components. Use guardrails, content safety classifiers, or moderation layers to filter harmful and sensitive content from outputs."
+  }
+]

@@ -1,0 +1,397 @@
+{
+  "version": "1.0",
+  "id": "sample-multi-provider-sensitive-data",
+  "name": "Multi-Provider RAG with Sensitive Data",
+  "description": "An enterprise system handling regulated financial data across multiple AI model providers.",
+  "createdAt": "2026-04-06T00:00:00.000Z",
+  "updatedAt": "2026-04-06T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "node-user",
+      "type": "external-actor",
+      "label": "Internal User",
+      "position": { "x": 0, "y": 300 },
+      "properties": {
+        "internetFacing": false,
+        "isExternal": false
+      }
+    },
+    {
+      "id": "node-gateway",
+      "type": "api-gateway",
+      "label": "API Gateway",
+      "position": { "x": 250, "y": 300 },
+      "properties": {
+        "internetFacing": false,
+        "hasRBAC": true,
+        "hasLogging": true
+      }
+    },
+    {
+      "id": "node-idp",
+      "type": "identity-provider",
+      "label": "Identity Provider",
+      "position": { "x": 250, "y": 100 },
+      "properties": {
+        "handlesCredentials": true,
+        "hasRBAC": true
+      }
+    },
+    {
+      "id": "node-rag",
+      "type": "rag-orchestrator",
+      "label": "RAG Orchestrator",
+      "position": { "x": 500, "y": 300 },
+      "properties": {
+        "hasInputValidation": false,
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-embedding",
+      "type": "embedding-model",
+      "label": "Embedding Model",
+      "position": { "x": 500, "y": 500 },
+      "properties": {
+        "isExternal": false,
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-vector-db",
+      "type": "vector-db",
+      "label": "Financial Documents DB",
+      "position": { "x": 750, "y": 500 },
+      "properties": {
+        "dataClassification": "restricted",
+        "hasRBAC": false,
+        "internetFacing": false
+      }
+    },
+    {
+      "id": "node-provider-a",
+      "type": "hosted-model-api",
+      "label": "Provider A LLM",
+      "position": { "x": 750, "y": 150 },
+      "properties": {
+        "isExternal": true,
+        "internetFacing": true,
+        "provider": "Provider A",
+        "hasOutputFiltering": false,
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-provider-b",
+      "type": "hosted-model-api",
+      "label": "Provider B LLM",
+      "position": { "x": 1000, "y": 150 },
+      "properties": {
+        "isExternal": true,
+        "internetFacing": true,
+        "provider": "Provider B",
+        "hasOutputFiltering": false,
+        "hasLogging": false
+      }
+    },
+    {
+      "id": "node-secrets",
+      "type": "secrets-vault",
+      "label": "Secrets Vault",
+      "position": { "x": 250, "y": 500 },
+      "properties": {
+        "handlesCredentials": true,
+        "hasRBAC": true,
+        "dataClassification": "restricted"
+      }
+    },
+    {
+      "id": "node-logging",
+      "type": "logging-monitoring",
+      "label": "Logging & Monitoring",
+      "position": { "x": 1000, "y": 500 },
+      "properties": {
+        "hasLogging": true
+      }
+    },
+    {
+      "id": "node-guardrail",
+      "type": "guardrail",
+      "label": "Guardrail",
+      "position": { "x": 500, "y": 100 },
+      "properties": {
+        "hasInputValidation": true,
+        "hasOutputFiltering": true
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-user-to-gateway",
+      "source": "node-user",
+      "target": "node-gateway",
+      "label": "User requests",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts", "credentials"]
+      }
+    },
+    {
+      "id": "flow-gateway-to-idp",
+      "source": "node-gateway",
+      "target": "node-idp",
+      "label": "Authentication check",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
+      "id": "flow-gateway-to-guardrail",
+      "source": "node-gateway",
+      "target": "node-guardrail",
+      "label": "Prompt screening",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-guardrail-to-rag",
+      "source": "node-guardrail",
+      "target": "node-rag",
+      "label": "Screened prompts",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-rag-to-embedding",
+      "source": "node-rag",
+      "target": "node-embedding",
+      "label": "Text for embedding",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-embedding-to-vectordb",
+      "source": "node-embedding",
+      "target": "node-vector-db",
+      "label": "Embedding vectors",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "restricted",
+        "dataTypes": ["embeddings"]
+      }
+    },
+    {
+      "id": "flow-vectordb-to-rag",
+      "source": "node-vector-db",
+      "target": "node-rag",
+      "label": "Retrieved context",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "restricted",
+        "dataTypes": ["embeddings"]
+      }
+    },
+    {
+      "id": "flow-rag-to-provider-a",
+      "source": "node-rag",
+      "target": "node-provider-a",
+      "label": "Augmented prompt to Provider A",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "restricted",
+        "dataTypes": ["prompts", "embeddings", "regulated-data"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-rag-to-provider-b",
+      "source": "node-rag",
+      "target": "node-provider-b",
+      "label": "Augmented prompt to Provider B",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "restricted",
+        "dataTypes": ["prompts", "embeddings", "regulated-data"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-provider-a-to-rag",
+      "source": "node-provider-a",
+      "target": "node-rag",
+      "label": "Provider A response",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-provider-b-to-rag",
+      "source": "node-provider-b",
+      "target": "node-rag",
+      "label": "Provider B response",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-gateway-to-secrets",
+      "source": "node-gateway",
+      "target": "node-secrets",
+      "label": "API key retrieval",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "restricted",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
+      "id": "flow-rag-to-logging",
+      "source": "node-rag",
+      "target": "node-logging",
+      "label": "Audit logs",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-secrets-to-gateway",
+      "source": "node-secrets",
+      "target": "node-gateway",
+      "label": "API keys returned",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "restricted",
+        "dataTypes": ["credentials"]
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "boundary-corporate",
+      "type": "corporate-network",
+      "label": "Corporate Network",
+      "nodeIds": ["node-user", "node-gateway", "node-idp", "node-rag", "node-embedding", "node-vector-db", "node-secrets", "node-logging", "node-guardrail"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-provider-a",
+      "type": "model-provider",
+      "label": "Provider A",
+      "nodeIds": ["node-provider-a"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-provider-b",
+      "type": "model-provider",
+      "label": "Provider B",
+      "nodeIds": ["node-provider-b"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-sensitive-data",
+      "type": "sensitive-data-zone",
+      "label": "Sensitive Data Zone",
+      "nodeIds": ["node-vector-db", "node-secrets"],
+      "properties": {}
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-project-overview",
+      "content": "This sample models an enterprise RAG system that processes restricted financial documents through multiple external hosted LLM providers. It demonstrates the risk of sending regulated data to external model providers, missing output filtering on hosted models, and the complexity of managing data classification across trust boundaries. Running analysis should produce 6-10 findings, primarily around data exposure to external providers.",
+      "category": "general",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-vectordb-assumption",
+      "content": "Financial documents include SEC filings, internal financial projections, and M&A due diligence materials classified as restricted",
+      "category": "assumption",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-vector-db"
+    },
+    {
+      "id": "note-dual-provider-decision",
+      "content": "Dual-provider strategy (Provider A + Provider B) chosen for redundancy, but doubles the data exposure attack surface",
+      "category": "decision",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z"
+    },
+    {
+      "id": "note-rag-todo",
+      "content": "Implement data masking/redaction before sending to external providers — strip PII and regulated identifiers",
+      "category": "todo",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-rag"
+    },
+    {
+      "id": "note-provider-a-finding",
+      "content": "Data classification review pending: need to confirm whether Provider A's data processing agreement covers restricted financial data under SOX/GDPR",
+      "category": "finding-response",
+      "author": "sample-author",
+      "createdAt": "2026-04-06T00:00:00.000Z",
+      "updatedAt": "2026-04-06T00:00:00.000Z",
+      "linkedNodeId": "node-provider-a"
+    }
+  ],
+  "metadata": {
+    "samplePurpose": "Demonstrates risks of sending regulated data across multiple external AI providers",
+    "expectedFindings": "6-10"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "name": "sonny",
+  "version": "0.1.0",
+  "description": "Sonny — Desktop application for AI threat modeling and attack surface analysis",
+  "main": "./out/main/index.js",
+  "author": {
+    "name": "Nader Shalabi"
+  },
+  "homepage": "https://github.com/nshalabi/sonny",
+  "license": "SEE LICENSE IN LICENSE",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "start": "electron-vite preview",
+    "postinstall": "electron-builder install-app-deps",
+    "build:win": "npm run build && electron-builder --win",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:linux": "npm run build && electron-builder --linux",
+    "icons": "node scripts/build-icons.mjs",
+    "typecheck:node": "tsc --noEmit -p tsconfig.node.json",
+    "typecheck:web": "tsc --noEmit -p tsconfig.web.json",
+    "typecheck": "npm run typecheck:node && npm run typecheck:web",
+    "lint": "eslint . --ext .ts,.tsx"
+  },
+  "dependencies": {
+    "@electron-toolkit/preload": "^3.0.1",
+    "@electron-toolkit/utils": "^3.0.0",
+    "@xyflow/react": "^12.3.0",
+    "docx": "^8.5.0",
+    "jspdf": "^2.5.1",
+    "jspdf-autotable": "^3.8.2",
+    "nanoid": "^5.0.7",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "zod": "^3.23.8",
+    "zustand": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "electron": "^31.3.1",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "png-to-ico": "^2.1.8",
+    "postcss": "^8.4.40",
+    "sharp": "^0.33.5",
+    "tailwindcss": "^3.4.7",
+    "typescript": "^5.5.4"
+  }
+}
