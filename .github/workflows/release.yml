@@ -45,6 +45,7 @@ jobs:
             dist/*.dmg
             dist/*.AppImage
             dist/*.zip
+            dist/*.tar.gz
           if-no-files-found: error
           retention-days: 7
 

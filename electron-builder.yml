@@ -8,8 +8,8 @@ files:
   - "!node_modules/**/*"
 fileAssociations:
   - ext: aitm
-    name: AI Threat Model
-    description: AI Threat Model Project File
+    name: Sonny Project
+    description: Sonny Threat Model Project File
     role: Editor
 win:
   icon: resources/icon.ico
@@ -17,10 +17,19 @@ win:
     - target: nsis
       arch:
         - x64
+    - target: portable
+      arch:
+        - x64
+portable:
+  artifactName: ${productName}-${version}-portable.${ext}
 mac:
   icon: resources/icon.png
   target:
     - target: dmg
+      arch:
+        - x64
+        - arm64
+    - target: zip
       arch:
         - x64
         - arm64
@@ -29,5 +38,8 @@ linux:
   category: Development
   target:
     - target: AppImage
+      arch:
+        - x64
+    - target: tar.gz
       arch:
         - x64
