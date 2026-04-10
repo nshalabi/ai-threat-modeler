@@ -9,7 +9,7 @@
 
 Sonny is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local and offline with no cloud dependency.
 
-<!-- Screenshot coming soon -->
+![Sonny — AI threat modeling canvas](screenshot/main.png)
 
 ## Key Features
 
