@@ -26,6 +26,7 @@ mac:
         - arm64
 linux:
   icon: resources/icon.png
+  category: Development
   target:
     - target: AppImage
       arch:
