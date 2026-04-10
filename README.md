@@ -2,6 +2,8 @@
 
 **Desktop application for AI system threat modeling and attack surface analysis**
 
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/nshalabi)
+
 Sonny is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local and offline with no cloud dependency.
 
 <!-- Screenshot coming soon -->
@@ -53,6 +55,16 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the contributor guide.
 Sonny uses structured JSON knowledge packs to define threats, controls, mitigations, and analysis rules. Packs can reference external frameworks like MITRE ATLAS and OWASP LLM Top 10. You can extend the built-in packs or create new ones for additional frameworks.
 
 See [docs/KNOWLEDGE-PACKS.md](docs/KNOWLEDGE-PACKS.md) for the full guide.
+
+## Support the Project
+
+If you find Sonny useful in your work, consider supporting its continued development:
+
+- [GitHub Sponsors](https://github.com/sponsors/nshalabi)
+
+Your support helps keep the project maintained and free for the community.
+
+---
 
 ## License
 
