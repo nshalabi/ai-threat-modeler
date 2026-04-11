@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: sonny-${{ matrix.os }}
+          name: ai-threat-modeler-${{ matrix.os }}
           path: |
             dist/*.exe
             dist/*.dmg

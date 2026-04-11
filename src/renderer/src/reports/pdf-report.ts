@@ -28,7 +28,7 @@ export async function generatePdfReport(data: ReportData): Promise<ArrayBuffer> 
   doc.setFont('helvetica', 'bold')
   doc.setFontSize(24)
   doc.setTextColor(...TEXT)
-  doc.text('Sonny — AI Threat Model Report', margin, 100)
+  doc.text('AI Threat Model Report', margin, 100)
 
   doc.setFont('helvetica', 'normal')
   doc.setFontSize(12)

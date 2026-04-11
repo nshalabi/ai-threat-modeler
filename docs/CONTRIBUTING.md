@@ -1,6 +1,6 @@
 # Contributing
 
-Contributions to Sonny are welcome. This document covers how to get started.
+Contributions to AI Threat Modeler are welcome. This document covers how to get started.
 
 ## How to Contribute
 

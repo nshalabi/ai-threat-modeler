@@ -1,5 +1,5 @@
-appId: com.sonny.app
-productName: Sonny
+appId: com.aithreatmodeler.app
+productName: AI Threat Modeler
 directories:
   buildResources: resources
   output: dist
@@ -8,8 +8,8 @@ files:
   - "!node_modules/**/*"
 fileAssociations:
   - ext: aitm
-    name: Sonny Project
-    description: Sonny Threat Model Project File
+    name: AI Threat Model Project
+    description: AI Threat Model Project File
     role: Editor
 win:
   icon: resources/icon.ico

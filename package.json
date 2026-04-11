@@ -1,12 +1,12 @@
 {
-  "name": "sonny",
+  "name": "ai-threat-modeler",
   "version": "0.1.0",
-  "description": "Sonny — Desktop application for AI threat modeling and attack surface analysis",
+  "description": "AI Threat Modeler — Desktop application for AI threat modeling and attack surface analysis",
   "main": "./out/main/index.js",
   "author": {
     "name": "Nader Shalabi"
   },
-  "homepage": "https://github.com/nshalabi/sonny",
+  "homepage": "https://github.com/nshalabi/ai-threat-modeler",
   "license": "SEE LICENSE IN LICENSE",
   "scripts": {
     "dev": "electron-vite dev",

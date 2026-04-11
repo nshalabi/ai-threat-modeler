@@ -60,7 +60,7 @@ export interface ReportData {
   findings: ReportFinding[]
 }
 
-const APP_NAME = 'Sonny'
+const APP_NAME = 'AI Threat Modeler'
 const APP_VERSION = '0.1.0'
 const AUTHOR = 'Nader Shalabi'
 

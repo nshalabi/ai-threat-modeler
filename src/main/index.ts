@@ -41,7 +41,7 @@ function createWindow(): void {
 }
 
 app.whenReady().then(() => {
-  electronApp.setAppUserModelId('com.sonny.app')
+  electronApp.setAppUserModelId('com.aithreatmodeler.app')
 
   app.on('browser-window-created', (_, window) => {
     optimizer.watchWindowShortcuts(window)
@@ -68,7 +68,7 @@ function setupIpcHandlers(): void {
         title: 'Save Threat Model Project',
         defaultPath: 'untitled.aitm',
         filters: [
-          { name: 'Sonny Project', extensions: ['aitm'] },
+          { name: 'AI Threat Model Project', extensions: ['aitm'] },
           { name: 'All Files', extensions: ['*'] }
         ]
       })
@@ -90,7 +90,7 @@ function setupIpcHandlers(): void {
       const { canceled, filePaths } = await dialog.showOpenDialog({
         title: 'Open Threat Model Project',
         filters: [
-          { name: 'Sonny Project', extensions: ['aitm'] },
+          { name: 'AI Threat Model Project', extensions: ['aitm'] },
           { name: 'All Files', extensions: ['*'] }
         ],
         properties: ['openFile']

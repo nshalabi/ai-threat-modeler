@@ -26,7 +26,7 @@ export function AboutDialog({ onClose }: AboutDialogProps): JSX.Element {
           <div className="flex justify-center mb-3">
             <AppIcon />
           </div>
-          <h2 className="text-xl font-bold text-[#e2e8f0]">Sonny</h2>
+          <h2 className="text-xl font-bold text-[#e2e8f0]">AI Threat Modeler</h2>
           <p className="text-xs text-[#64748b] mt-1">Version {APP_VERSION}</p>
           <p className="text-[11px] text-[#64748b] mt-0.5">Threat modeling for AI systems</p>
         </div>
@@ -34,8 +34,8 @@ export function AboutDialog({ onClose }: AboutDialogProps): JSX.Element {
         {/* Body */}
         <div className="px-6 pb-4 text-sm text-[#94a3b8] text-center space-y-3">
           <p>
-            Sonny is a visual threat modeling tool dedicated to AI systems — LLMs, RAG,
-            agents, and model pipelines.
+            A visual threat modeling tool dedicated to AI systems — LLMs, RAG, agents, and
+            model pipelines.
           </p>
           <p className="text-[#94a3b8]">
             Findings are mapped to MITRE ATLAS, OWASP LLM Top 10, NIST AI RMF, and NIST CSF.

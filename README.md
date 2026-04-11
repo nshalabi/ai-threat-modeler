@@ -1,15 +1,15 @@
-# Sonny
+# AI Threat Modeler
 
 **Desktop application for AI system threat modeling and attack surface analysis**
 
 [![License: Source-Available](https://img.shields.io/badge/License-Source--Available-blue.svg)](LICENSE)
-![GitHub last commit](https://img.shields.io/github/last-commit/nshalabi/sonny)
-![GitHub stars](https://img.shields.io/github/stars/nshalabi/sonny?style=social)
+![GitHub last commit](https://img.shields.io/github/last-commit/nshalabi/ai-threat-modeler)
+![GitHub stars](https://img.shields.io/github/stars/nshalabi/ai-threat-modeler?style=social)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/nshalabi)
 
-Sonny is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local and offline with no cloud dependency.
+AI Threat Modeler is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local and offline with no cloud dependency.
 
-![Sonny — AI threat modeling canvas](screenshot/main.png)
+![AI Threat Modeler canvas](screenshot/main.png)
 
 ## Key Features
 
@@ -34,7 +34,7 @@ npm run dev
 
 ## Sample Projects
 
-The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects that demonstrate common AI architectures and the kinds of findings Sonny produces. They are the fastest way to try the tool without building a model from scratch — just launch Sonny, choose **Open Project**, and pick one.
+The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects that demonstrate common AI architectures and the kinds of findings AI Threat Modeler produces. They are the fastest way to try the tool without building a model from scratch — just launch the app, choose **Open Project**, and pick one.
 
 | Sample | What it shows |
 | --- | --- |
@@ -69,13 +69,13 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the contributor guide.
 
 ## Knowledge Packs
 
-Sonny uses structured JSON knowledge packs to define threats, controls, mitigations, and analysis rules. Packs can reference external frameworks like MITRE ATLAS and OWASP LLM Top 10. You can extend the built-in packs or create new ones for additional frameworks.
+AI Threat Modeler uses structured JSON knowledge packs to define threats, controls, mitigations, and analysis rules. Packs can reference external frameworks like MITRE ATLAS and OWASP LLM Top 10. You can extend the built-in packs or create new ones for additional frameworks.
 
 See [docs/KNOWLEDGE-PACKS.md](docs/KNOWLEDGE-PACKS.md) for the full guide.
 
 ## Support the Project
 
-If you find Sonny useful in your work, consider supporting its continued development:
+If you find AI Threat Modeler useful in your work, consider supporting its continued development:
 
 - [GitHub Sponsors](https://github.com/sponsors/nshalabi)
 

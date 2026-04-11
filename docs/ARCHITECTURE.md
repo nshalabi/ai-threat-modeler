@@ -2,7 +2,7 @@
 
 ## Overview
 
-Sonny is organized into four subsystems that work together to let users model AI systems, analyze them for threats, and produce reports.
+AI Threat Modeler is organized into four subsystems that work together to let users model AI systems, analyze them for threats, and produce reports.
 
 ```
 +---------------------+     +---------------------+
