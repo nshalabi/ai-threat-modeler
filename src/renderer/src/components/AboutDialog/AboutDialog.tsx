@@ -1,6 +1,8 @@
 /**
  * About dialog — shows app info and developer credits.
  */
+import { platform } from '../../platform'
+
 interface AboutDialogProps {
   onClose: () => void
 }
@@ -9,7 +11,7 @@ const APP_VERSION = '0.1.0'
 
 export function AboutDialog({ onClose }: AboutDialogProps): JSX.Element {
   const open = (url: string) => {
-    void window.api.openExternal(url)
+    void platform.openExternal(url)
   }
 
   return (
@@ -81,9 +83,9 @@ export function AboutDialog({ onClose }: AboutDialogProps): JSX.Element {
           </div>
 
           <p className="text-[10px] text-[#475569] pt-3 leading-relaxed">
-            Copyright &copy; 2026 Nader Shalabi. All rights reserved.
+            Copyright &copy; 2026 Nader Shalabi.
             <br />
-            Source-available. See LICENSE for terms.
+            Released under the MIT License.
           </p>
         </div>
 

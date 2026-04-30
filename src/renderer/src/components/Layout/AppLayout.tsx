@@ -6,6 +6,7 @@ import { PropertyPanel } from '../PropertyPanel/PropertyPanel'
 import { FindingsPanel } from '../FindingsPanel/FindingsPanel'
 import { NotesPanel } from '../NotesPanel/NotesPanel'
 import { AboutDialog } from '../AboutDialog/AboutDialog'
+import { SamplesDialog } from '../SamplesDialog/SamplesDialog'
 import { useProjectStore } from '../../stores/project-store'
 
 export function AppLayout(): JSX.Element {
@@ -14,6 +15,8 @@ export function AppLayout(): JSX.Element {
   const toggleFullScreen = useProjectStore((s) => s.toggleFullScreen)
   const showAbout = useProjectStore((s) => s.showAbout)
   const setShowAbout = useProjectStore((s) => s.setShowAbout)
+  const showSamples = useProjectStore((s) => s.showSamples)
+  const setShowSamples = useProjectStore((s) => s.setShowSamples)
 
   // ESC exits full-screen mode
   useEffect(() => {
@@ -43,6 +46,7 @@ export function AppLayout(): JSX.Element {
           </button>
         </div>
         {showAbout && <AboutDialog onClose={() => setShowAbout(false)} />}
+        {showSamples && <SamplesDialog onClose={() => setShowSamples(false)} />}
       </div>
     )
   }
@@ -72,6 +76,7 @@ export function AppLayout(): JSX.Element {
       </div>
 
       {showAbout && <AboutDialog onClose={() => setShowAbout(false)} />}
+      {showSamples && <SamplesDialog onClose={() => setShowSamples(false)} />}
     </div>
   )
 }

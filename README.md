@@ -2,12 +2,14 @@
 
 **Desktop application for AI system threat modeling and attack surface analysis**
 
-[![License: Source-Available](https://img.shields.io/badge/License-Source--Available-blue.svg)](LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![GitHub last commit](https://img.shields.io/github/last-commit/nshalabi/ai-threat-modeler)
 ![GitHub stars](https://img.shields.io/github/stars/nshalabi/ai-threat-modeler?style=social)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/nshalabi)
 
 AI Threat Modeler is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local and offline with no cloud dependency.
+
+**Try it now in your browser:** [nshalabi.github.io/ai-threat-modeler](https://nshalabi.github.io/ai-threat-modeler/) — load a bundled sample with one click, no install required. For full features and persistent local files, [download the desktop app](https://github.com/nshalabi/ai-threat-modeler/releases/latest).
 
 ![AI Threat Modeler canvas](screenshot/main.png)
 
@@ -34,7 +36,7 @@ npm run dev
 
 ## Sample Projects
 
-The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects that demonstrate common AI architectures and the kinds of findings AI Threat Modeler produces. They are the fastest way to try the tool without building a model from scratch — just launch the app, choose **Open Project**, and pick one.
+The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects that demonstrate common AI architectures and the kinds of findings AI Threat Modeler produces. They are the fastest way to try the tool without building a model from scratch — click **Samples** in the toolbar (works in both the [web demo](https://nshalabi.github.io/ai-threat-modeler/) and the desktop app) and pick one.
 
 | Sample | What it shows |
 | --- | --- |
@@ -85,18 +87,7 @@ Your support helps keep the project maintained and free for the community.
 
 ## License
 
-Source-available under a custom license.
-
-- **Personal Use** (private, educational, research, evaluation by an
-  individual): free, no approval required.
-- **Internal Enterprise Use** (any use by or on behalf of an organization,
-  including its employees and contractors): requires prior written permission
-  from the author. A limited 30-day evaluation right is available — see the
-  LICENSE file.
-- **Commercial Use** and **Distribution** (forks, mirrors, repackaging,
-  bundling): require prior written permission from the author.
-
-See [LICENSE](LICENSE) for the full terms.
+Released under the [MIT License](LICENSE) — free to use, modify, and distribute, including commercially. Attribution appreciated but not required.
 
 Copyright &copy; 2026 Nader Shalabi.
 

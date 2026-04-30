@@ -1,5 +1,10 @@
 /// <reference types="vite/client" />
 
+// Build-time constant injected by Vite — set to 'web' by vite.config.web.ts.
+// Undefined when running under electron-vite, in which case the platform
+// adapter falls back to feature detection on `window.api`.
+declare const __APP_TARGET__: 'electron' | 'web' | undefined
+
 interface Window {
   api: {
     saveProject: (data: string) => Promise<{ success: boolean; path?: string }>

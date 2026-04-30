@@ -43,6 +43,9 @@ interface ProjectState {
   // About dialog visibility
   showAbout: boolean
 
+  // Samples dialog visibility
+  showSamples: boolean
+
   // Actions
   newProject: (name: string, description?: string) => void
   setProject: (project: ThreatModelProject, path?: string) => void
@@ -76,6 +79,7 @@ interface ProjectState {
 
   toggleFullScreen: () => void
   setShowAbout: (show: boolean) => void
+  setShowSamples: (show: boolean) => void
 
   markClean: () => void
 }
@@ -110,6 +114,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   highlightSeverity: null,
   isFullScreen: false,
   showAbout: false,
+  showSamples: false,
 
   newProject: (name: string, description?: string) => {
     set({
@@ -461,6 +466,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   setShowAbout: (show: boolean) => {
     set({ showAbout: show })
+  },
+
+  setShowSamples: (show: boolean) => {
+    set({ showSamples: show })
   },
 
   markClean: () => {

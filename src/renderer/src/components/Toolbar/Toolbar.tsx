@@ -7,6 +7,7 @@ import { buildReportData } from '../../reports/report-data'
 import { generatePdfReport } from '../../reports/pdf-report'
 import { generateDocxReport } from '../../reports/docx-report'
 import { generateCsvReport } from '../../reports/csv-report'
+import { platform } from '../../platform'
 
 export function Toolbar(): JSX.Element {
   const project = useProjectStore((s) => s.project)
@@ -24,6 +25,7 @@ export function Toolbar(): JSX.Element {
   const toggleFullScreen = useProjectStore((s) => s.toggleFullScreen)
   const highlightedNodeIds = useProjectStore((s) => s.highlightedNodeIds)
   const setShowAbout = useProjectStore((s) => s.setShowAbout)
+  const setShowSamples = useProjectStore((s) => s.setShowSamples)
   const notes = useProjectStore((s) => s.project.notes)
 
   const [reportsOpen, setReportsOpen] = useState(false)
@@ -47,7 +49,7 @@ export function Toolbar(): JSX.Element {
   }
 
   const handleOpen = async () => {
-    const result = await window.api.openProject()
+    const result = await platform.openProject()
     if (result.success && result.data) {
       try {
         const parsed = JSON.parse(result.data)
@@ -60,7 +62,8 @@ export function Toolbar(): JSX.Element {
 
   const handleSave = async () => {
     const data = JSON.stringify(project, null, 2)
-    const result = await window.api.saveProject(data)
+    const safeName = project.name.replace(/[^\w.-]+/g, '_') || 'project'
+    const result = await platform.saveProject(data, `${safeName}.aitm`)
     if (result.success) {
       markClean()
     }
@@ -88,13 +91,13 @@ export function Toolbar(): JSX.Element {
 
       if (format === 'csv') {
         const csv = generateCsvReport(data)
-        await window.api.saveReport({ format, data: csv, defaultName: `${safeName}-findings.csv` })
+        await platform.saveReport({ format, data: csv, defaultName: `${safeName}-findings.csv` })
       } else if (format === 'pdf') {
         const buffer = await generatePdfReport(data)
-        await window.api.saveReport({ format, data: buffer, defaultName: `${safeName}.pdf` })
+        await platform.saveReport({ format, data: buffer, defaultName: `${safeName}.pdf` })
       } else {
         const buffer = await generateDocxReport(data)
-        await window.api.saveReport({ format, data: buffer, defaultName: `${safeName}.docx` })
+        await platform.saveReport({ format, data: buffer, defaultName: `${safeName}.docx` })
       }
     } catch (err) {
       console.error('Report generation failed:', err)
@@ -134,6 +137,9 @@ export function Toolbar(): JSX.Element {
         </ToolbarButton>
         <ToolbarButton onClick={handleSave} title="Save Project">
           Save
+        </ToolbarButton>
+        <ToolbarButton onClick={() => setShowSamples(true)} title="Load a sample project">
+          Samples
         </ToolbarButton>
         <ToolbarDivider />
         <ToolbarButton onClick={handleRunAnalysis} title="Run Analysis" accent>
