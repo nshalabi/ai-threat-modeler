@@ -1,13 +1,14 @@
 # AI Threat Modeler
 
-**Desktop application for AI system threat modeling and attack surface analysis**
+**Visual threat modeling for AI systems — available as a web app and a desktop application**
 
+[![Live demo](https://img.shields.io/badge/Live%20demo-Open-success?logo=github)](https://nshalabi.github.io/ai-threat-modeler/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 ![GitHub last commit](https://img.shields.io/github/last-commit/nshalabi/ai-threat-modeler)
 ![GitHub stars](https://img.shields.io/github/stars/nshalabi/ai-threat-modeler?style=social)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/nshalabi)
 
-AI Threat Modeler is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local and offline with no cloud dependency.
+AI Threat Modeler is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local — the desktop app is offline-only, and the web app runs entirely in your browser with no data leaving the page.
 
 **Try it now in your browser:** [nshalabi.github.io/ai-threat-modeler](https://nshalabi.github.io/ai-threat-modeler/) — load a bundled sample with one click, no install required. For full features and persistent local files, [download the desktop app](https://github.com/nshalabi/ai-threat-modeler/releases/latest).
 
@@ -21,17 +22,31 @@ AI Threat Modeler is a visual threat modeling tool specialized for AI systems, L
 - Deterministic rule-based analysis engine
 - Transparent findings with rule IDs and rationale
 - Extensible knowledge packs for frameworks and threats
-- Local-first, works fully offline
-- JSON project files (.aitm)
-- Export findings and reports
+- Available as a web app (no install) and as a desktop app (Windows / macOS / Linux)
+- Local-first — desktop runs fully offline, web runs entirely client-side
+- JSON project files (.aitm) with import/export
+- PDF, Word, and CSV report generation
 
 ## Getting Started
 
+Pick the option that fits how you want to use the tool:
+
+**Try it in your browser** — fastest way to evaluate the tool. No install, no account.
+
+  [https://nshalabi.github.io/ai-threat-modeler/](https://nshalabi.github.io/ai-threat-modeler/)
+
+**Download the desktop app** — recommended for real work. Native file dialogs, persistent recents, and offline by design.
+
+  [Latest release](https://github.com/nshalabi/ai-threat-modeler/releases/latest) — Windows installer + portable, macOS DMG + zip, Linux AppImage + tar.gz.
+
+**Build from source** — for development and contributions.
+
 ```bash
-git clone <repo>
+git clone https://github.com/nshalabi/ai-threat-modeler.git
 cd ai-threat-modeler
 npm install
-npm run dev
+npm run dev        # desktop (Electron) dev mode
+npm run dev:web    # web dev server
 ```
 
 ## Sample Projects
@@ -50,7 +65,7 @@ After opening a sample, click **Analyze** in the toolbar to run the rules engine
 
 ## Technology
 
-Built with Electron, React, TypeScript, React Flow, Zustand, Zod, and Tailwind CSS.
+Built with React, TypeScript, React Flow, Zustand, Zod, and Tailwind CSS. Packaged as a desktop app via Electron, and as a static web app via Vite.
 
 ## Architecture
 
