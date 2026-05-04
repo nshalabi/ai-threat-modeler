@@ -106,45 +106,19 @@ export function AboutDialog({ onClose }: AboutDialogProps): JSX.Element {
 function AppIcon(): JSX.Element {
   return (
     <svg width="64" height="64" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="aboutBg" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#1a1a2e" />
-          <stop offset="100%" stopColor="#0a0a0f" />
-        </linearGradient>
-        <linearGradient id="aboutShield" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#818cf8" />
-          <stop offset="100%" stopColor="#6366f1" />
-        </linearGradient>
-        <linearGradient id="aboutAccent" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7c3aed" />
-          <stop offset="100%" stopColor="#6366f1" />
-        </linearGradient>
-      </defs>
-      <rect width="512" height="512" rx="96" fill="url(#aboutBg)" />
+      <rect width="512" height="512" rx="96" fill="#6366f1" />
       <path
-        d="M256 80 L400 130 L400 270 C400 350 340 410 256 440 C172 410 112 350 112 270 L112 130 Z"
-        fill="url(#aboutShield)"
-        stroke="#a5b4fc"
-        strokeWidth="4"
+        d="M256 104 L400 152 L400 272 C400 348 344 408 256 432 C168 408 112 348 112 272 L112 152 Z"
+        fill="#ffffff"
       />
-      <path
-        d="M256 110 L376 150 L376 270 C376 340 326 392 256 418 C186 392 136 340 136 270 L136 150 Z"
-        fill="#12121a"
-        fillOpacity="0.6"
-      />
-      <circle cx="200" cy="200" r="14" fill="url(#aboutAccent)" stroke="#a5b4fc" strokeWidth="2" />
-      <circle cx="312" cy="200" r="14" fill="url(#aboutAccent)" stroke="#a5b4fc" strokeWidth="2" />
-      <circle cx="256" cy="270" r="18" fill="#a5b4fc" stroke="#ffffff" strokeWidth="2" />
-      <circle cx="200" cy="340" r="14" fill="url(#aboutAccent)" stroke="#a5b4fc" strokeWidth="2" />
-      <circle cx="312" cy="340" r="14" fill="url(#aboutAccent)" stroke="#a5b4fc" strokeWidth="2" />
-      <g stroke="#818cf8" strokeWidth="3" strokeLinecap="round" opacity="0.85">
-        <line x1="200" y1="200" x2="256" y2="270" />
-        <line x1="312" y1="200" x2="256" y2="270" />
-        <line x1="200" y1="340" x2="256" y2="270" />
-        <line x1="312" y1="340" x2="256" y2="270" />
-        <line x1="200" y1="200" x2="312" y2="200" />
-        <line x1="200" y1="340" x2="312" y2="340" />
+      <g stroke="#6366f1" strokeWidth="14" strokeLinecap="round">
+        <line x1="208" y1="248" x2="304" y2="248" />
+        <line x1="208" y1="248" x2="256" y2="332" />
+        <line x1="304" y1="248" x2="256" y2="332" />
       </g>
+      <circle cx="208" cy="248" r="22" fill="#6366f1" />
+      <circle cx="304" cy="248" r="22" fill="#6366f1" />
+      <circle cx="256" cy="332" r="22" fill="#6366f1" />
     </svg>
   )
 }
