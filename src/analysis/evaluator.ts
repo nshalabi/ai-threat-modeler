@@ -1,11 +1,17 @@
 import type { ThreatModelProject, ModelNode, DataFlow, TrustBoundary } from '../shared/types/model'
-import type { RuleCondition, AnalysisRule } from '../shared/types/analysis'
+import type {
+  RuleCondition,
+  AnalysisRule,
+  ConditionTrace,
+  FindingDerivation
+} from '../shared/types/analysis'
 
 export interface EvaluationMatch {
   nodeIds: string[]
   flowIds: string[]
   boundaryIds: string[]
   rationale: string
+  derivation: FindingDerivation
 }
 
 function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
@@ -20,49 +26,86 @@ function getNestedValue(obj: Record<string, unknown>, path: string): unknown {
   return current
 }
 
-function evaluateCondition(condition: RuleCondition, obj: Record<string, unknown>): boolean {
+function evaluateCondition(
+  condition: RuleCondition,
+  obj: Record<string, unknown>
+): { passed: boolean; actual: unknown } {
   const value = getNestedValue(obj, condition.field)
 
+  let passed: boolean
   switch (condition.operator) {
     case 'equals':
-      return value === condition.value
+      passed = value === condition.value
+      break
     case 'not-equals':
-      return value !== condition.value
+      passed = value !== condition.value
+      break
     case 'contains':
-      if (Array.isArray(value)) return value.includes(condition.value)
-      if (typeof value === 'string') return value.includes(String(condition.value))
-      return false
+      if (Array.isArray(value)) passed = value.includes(condition.value)
+      else if (typeof value === 'string') passed = value.includes(String(condition.value))
+      else passed = false
+      break
     case 'not-contains':
-      if (Array.isArray(value)) return !value.includes(condition.value)
-      if (typeof value === 'string') return !value.includes(String(condition.value))
-      return true
+      if (Array.isArray(value)) passed = !value.includes(condition.value)
+      else if (typeof value === 'string') passed = !value.includes(String(condition.value))
+      else passed = true
+      break
     case 'exists':
-      return value !== undefined && value !== null
+      passed = value !== undefined && value !== null
+      break
     case 'not-exists':
-      return value === undefined || value === null
+      passed = value === undefined || value === null
+      break
     case 'in':
-      if (Array.isArray(condition.value)) return condition.value.includes(value)
-      return false
+      passed = Array.isArray(condition.value) ? condition.value.includes(value) : false
+      break
     case 'not-in':
-      if (Array.isArray(condition.value)) return !condition.value.includes(value)
-      return true
+      passed = Array.isArray(condition.value) ? !condition.value.includes(value) : true
+      break
     default:
-      return false
+      passed = false
   }
+
+  return { passed, actual: value }
+}
+
+interface ConditionsResult {
+  passed: boolean
+  traces: ConditionTrace[]
 }
 
 function evaluateConditions(
   conditions: RuleCondition[],
   logicOperator: 'and' | 'or',
   context: Record<string, Record<string, unknown>>
-): boolean {
-  const results = conditions.map((condition) => {
+): ConditionsResult {
+  const traces: ConditionTrace[] = conditions.map((condition) => {
     const target = context[condition.target]
-    if (!target) return false
-    return evaluateCondition(condition, target)
+    if (!target) {
+      return {
+        target: condition.target,
+        field: condition.field,
+        operator: condition.operator,
+        expected: condition.value,
+        actual: undefined,
+        passed: false
+      }
+    }
+    const { passed, actual } = evaluateCondition(condition, target)
+    return {
+      target: condition.target,
+      field: condition.field,
+      operator: condition.operator,
+      expected: condition.value,
+      actual,
+      passed
+    }
   })
 
-  return logicOperator === 'and' ? results.every(Boolean) : results.some(Boolean)
+  const passed =
+    logicOperator === 'and' ? traces.every((t) => t.passed) : traces.some((t) => t.passed)
+
+  return { passed, traces }
 }
 
 function buildRationale(rule: AnalysisRule, entityLabels: string[]): string {
@@ -89,12 +132,14 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
         model: project as unknown as Record<string, unknown>
       }
 
-      if (evaluateConditions(rule.conditions, rule.logicOperator, context)) {
+      const result = evaluateConditions(rule.conditions, rule.logicOperator, context)
+      if (result.passed) {
         matches.push({
           nodeIds: [node.id],
           flowIds: [],
           boundaryIds: [],
-          rationale: buildRationale(rule, [node.label])
+          rationale: buildRationale(rule, [node.label]),
+          derivation: { logicOperator: rule.logicOperator, conditions: result.traces }
         })
       }
     }
@@ -125,7 +170,8 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
         context.node = targetNode as unknown as Record<string, unknown>
       }
 
-      if (evaluateConditions(rule.conditions, rule.logicOperator, context)) {
+      const result = evaluateConditions(rule.conditions, rule.logicOperator, context)
+      if (result.passed) {
         const affectedNodes: string[] = []
         const labels: string[] = [flow.label]
         if (sourceNode) {
@@ -141,7 +187,8 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
           nodeIds: affectedNodes,
           flowIds: [flow.id],
           boundaryIds: [],
-          rationale: buildRationale(rule, labels)
+          rationale: buildRationale(rule, labels),
+          derivation: { logicOperator: rule.logicOperator, conditions: result.traces }
         })
       }
     }
@@ -162,12 +209,14 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
         model: project as unknown as Record<string, unknown>
       }
 
-      if (evaluateConditions(rule.conditions, rule.logicOperator, context)) {
+      const result = evaluateConditions(rule.conditions, rule.logicOperator, context)
+      if (result.passed) {
         matches.push({
           nodeIds: boundary.nodeIds,
           flowIds: [],
           boundaryIds: [boundary.id],
-          rationale: buildRationale(rule, [boundary.label])
+          rationale: buildRationale(rule, [boundary.label]),
+          derivation: { logicOperator: rule.logicOperator, conditions: result.traces }
         })
       }
     }

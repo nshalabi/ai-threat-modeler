@@ -1,7 +1,34 @@
 import { useState } from 'react'
 import { useProjectStore } from '../../stores/project-store'
-import type { Finding } from '@shared/types/analysis'
+import type { Finding, ConditionTrace } from '@shared/types/analysis'
 import type { Severity } from '@shared/types/knowledge'
+
+const OPERATOR_LABEL: Record<ConditionTrace['operator'], string> = {
+  equals: 'is',
+  'not-equals': 'is not',
+  contains: 'contains',
+  'not-contains': 'does not contain',
+  exists: 'is set',
+  'not-exists': 'is not set',
+  in: 'is one of',
+  'not-in': 'is not one of'
+}
+
+function formatValue(v: unknown): string {
+  if (v === undefined || v === null) return '—'
+  if (typeof v === 'string') return v === '' ? '(empty)' : `"${v}"`
+  if (typeof v === 'boolean') return v ? 'true' : 'false'
+  if (Array.isArray(v)) return `[${v.map(formatValue).join(', ')}]`
+  return String(v)
+}
+
+function conditionText(c: ConditionTrace): string {
+  const subject = `${c.target}.${c.field}`
+  if (c.operator === 'exists' || c.operator === 'not-exists') {
+    return `${subject} ${OPERATOR_LABEL[c.operator]}`
+  }
+  return `${subject} ${OPERATOR_LABEL[c.operator]} ${formatValue(c.expected)}`
+}
 
 const SEVERITY_COLORS: Record<Severity, string> = {
   critical: 'bg-red-500',
@@ -153,6 +180,39 @@ function FindingCard({
           <DetailSection label="Rationale">
             <p className="text-xs text-[#94a3b8] leading-relaxed">{finding.rationale}</p>
           </DetailSection>
+
+          {finding.derivation.conditions.length > 0 && (
+            <DetailSection
+              label={`Why this fired (${
+                finding.derivation.logicOperator === 'and'
+                  ? 'all conditions met'
+                  : 'any condition met'
+              })`}
+            >
+              <ul className="space-y-1">
+                {finding.derivation.conditions.map((c, i) => (
+                  <li key={i} className="text-[10px] leading-relaxed flex items-start gap-1.5">
+                    <span
+                      className={`mt-px flex-shrink-0 ${
+                        c.passed ? 'text-emerald-400' : 'text-[#64748b]'
+                      }`}
+                    >
+                      {c.passed ? '✓' : '✕'}
+                    </span>
+                    <span className="text-[#94a3b8]">
+                      <code className="text-[#cbd5e1]">{conditionText(c)}</code>
+                      {c.operator !== 'exists' && c.operator !== 'not-exists' && (
+                        <span className="text-[#64748b]">
+                          {' '}
+                          — actual: <code className="text-[#cbd5e1]">{formatValue(c.actual)}</code>
+                        </span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </DetailSection>
+          )}
 
           {nodeLabels.length > 0 && (
             <DetailSection label="Affected Components">

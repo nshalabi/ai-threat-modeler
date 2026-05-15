@@ -52,6 +52,7 @@ export class AnalysisEngine {
           affectedFlowIds: match.flowIds,
           affectedBoundaryIds: match.boundaryIds,
           rationale: match.rationale,
+          derivation: match.derivation,
           frameworkRefs,
           mitigations: mitigationNames,
           recommendation: rule.recommendation
