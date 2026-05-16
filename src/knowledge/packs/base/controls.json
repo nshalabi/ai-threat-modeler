@@ -5,7 +5,7 @@
     "description": "Validate, sanitize, and constrain all inputs to AI components including prompts, tool arguments, and retrieved content to prevent injection and malformed data.",
     "category": "preventive",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" },
+      { "framework": "NIST AI RMF", "id": "MEASURE 2.7", "name": "AI system security and resilience are evaluated and documented" },
       { "framework": "NIST CSF", "id": "PR.DS-01", "name": "Data-at-rest is protected" }
     ]
   },
@@ -15,7 +15,7 @@
     "description": "Filter, validate, and sanitize all model outputs before they are returned to users or passed to downstream systems to prevent data leakage and harmful content.",
     "category": "preventive",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+      { "framework": "NIST AI RMF", "id": "MEASURE 2.7", "name": "AI system security and resilience are evaluated and documented" }
     ]
   },
   {
@@ -25,7 +25,7 @@
     "category": "preventive",
     "frameworkRefs": [
       { "framework": "NIST CSF", "id": "PR.AA-01", "name": "Identities and credentials are managed" },
-      { "framework": "NIST AI RMF", "id": "GV-1.1", "name": "Govern - Policies and Processes" }
+      { "framework": "NIST AI RMF", "id": "GOVERN 1.4", "name": "Risk management process established through transparent policies and procedures" }
     ]
   },
   {
@@ -34,7 +34,7 @@
     "description": "Require human review and approval for high-impact actions initiated by AI agents, including data modifications, financial transactions, and external communications.",
     "category": "preventive",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MP-4.1", "name": "Map - Human-AI Interaction" }
+      { "framework": "NIST AI RMF", "id": "MAP 3.5", "name": "Processes for human oversight are defined, assessed, and documented" }
     ]
   },
   {
@@ -53,7 +53,7 @@
     "category": "preventive",
     "frameworkRefs": [
       { "framework": "NIST CSF", "id": "PR.DS-01", "name": "Data-at-rest is protected" },
-      { "framework": "NIST AI RMF", "id": "MG-3.1", "name": "Manage AI Risks - Risk Response" }
+      { "framework": "NIST AI RMF", "id": "MANAGE 1.3", "name": "Responses to high-priority AI risks are developed, planned, and documented" }
     ]
   },
   {
@@ -62,7 +62,7 @@
     "description": "Verify the provenance, integrity, and authenticity of models, weights, and dependencies before deployment. Maintain a model bill-of-materials.",
     "category": "preventive",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MG-2.3", "name": "Manage AI Risks - Documentation and Transparency" },
+      { "framework": "NIST AI RMF", "id": "MANAGE 3.2", "name": "Pre-trained models used for development are monitored" },
       { "framework": "NIST CSF", "id": "ID.RA-09", "name": "Authenticity and integrity of hardware and software are assessed before use" }
     ]
   },
@@ -73,7 +73,7 @@
     "category": "detective",
     "frameworkRefs": [
       { "framework": "NIST CSF", "id": "DE.CM-09", "name": "Computing hardware, software, and runtime are monitored" },
-      { "framework": "NIST AI RMF", "id": "MG-3.2", "name": "Manage AI Risks - Monitoring" }
+      { "framework": "NIST AI RMF", "id": "MANAGE 4.1", "name": "Post-deployment AI system monitoring plans are implemented" }
     ]
   },
   {
@@ -92,7 +92,7 @@
     "description": "Deploy input and output guardrails, content safety filters, and moderation layers to enforce policy constraints on AI system interactions.",
     "category": "preventive",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+      { "framework": "NIST AI RMF", "id": "MEASURE 2.7", "name": "AI system security and resilience are evaluated and documented" }
     ]
   },
   {
@@ -102,7 +102,7 @@
     "category": "preventive",
     "frameworkRefs": [
       { "framework": "NIST CSF", "id": "PR.DS-01", "name": "Data-at-rest is protected" },
-      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+      { "framework": "NIST AI RMF", "id": "MEASURE 2.7", "name": "AI system security and resilience are evaluated and documented" }
     ]
   },
   {
@@ -111,7 +111,7 @@
     "description": "Keep secrets and sensitive logic out of system prompts, apply prompt-hardening, and enforce security controls outside the prompt rather than relying on its confidentiality.",
     "category": "preventive",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MP-2.3", "name": "Map - AI System Requirements" }
+      { "framework": "NIST AI RMF", "id": "MAP 1.6", "name": "System requirements are elicited and documented" }
     ]
   },
   {
@@ -120,7 +120,7 @@
     "description": "Constrain responses to verified sources, attach citations, apply retrieval grounding, and require human verification for high-stakes outputs.",
     "category": "detective",
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MS-2.5", "name": "Measure - Validity and Reliability" }
+      { "framework": "NIST AI RMF", "id": "MEASURE 2.5", "name": "The AI system is demonstrated to be valid and reliable" }
     ]
   }
 ]

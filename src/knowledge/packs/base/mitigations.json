@@ -32,7 +32,7 @@
     "description": "Configure AI agents to require human-in-the-loop approval for high-impact actions such as data writes, external API calls, financial operations, and permission changes.",
     "controlIds": ["CTRL-004"],
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MP-4.1", "name": "Map - Human-AI Interaction" }
+      { "framework": "NIST AI RMF", "id": "MAP 3.5", "name": "Processes for human oversight are defined, assessed, and documented" }
     ]
   },
   {
@@ -86,7 +86,7 @@
     "description": "Deploy dedicated guardrail components or moderation layers that inspect and filter both inputs to and outputs from LLMs for policy violations, injection patterns, and harmful content.",
     "controlIds": ["CTRL-010", "CTRL-001", "CTRL-002"],
     "frameworkRefs": [
-      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+      { "framework": "NIST AI RMF", "id": "MEASURE 2.7", "name": "AI system security and resilience are evaluated and documented" }
     ]
   },
   {
