@@ -23,7 +23,7 @@
     "description": "Apply RBAC and least-privilege principles to all AI agent tool connectors, plugins, data source access, and model endpoints.",
     "controlIds": ["CTRL-003"],
     "frameworkRefs": [
-      { "framework": "NIST CSF", "id": "PR.AC-1", "name": "Protect - Identity Management and Access Control" }
+      { "framework": "NIST CSF", "id": "PR.AA-01", "name": "Identities and credentials are managed" }
     ]
   },
   {
@@ -41,7 +41,7 @@
     "description": "Enforce rate limits, request quotas, and query complexity limits on model inference endpoints to prevent DoS attacks and systematic model extraction.",
     "controlIds": ["CTRL-005"],
     "frameworkRefs": [
-      { "framework": "NIST CSF", "id": "PR.PT-4", "name": "Protect - Protective Technology" }
+      { "framework": "NIST CSF", "id": "PR.IR-04", "name": "Resource capacity to ensure availability is maintained" }
     ]
   },
   {
@@ -50,7 +50,7 @@
     "description": "Implement data classification tagging on all flows to AI components. Block or mask confidential and restricted data before sending to external model providers.",
     "controlIds": ["CTRL-006"],
     "frameworkRefs": [
-      { "framework": "NIST CSF", "id": "PR.DS-1", "name": "Protect - Data Security" }
+      { "framework": "NIST CSF", "id": "PR.DS-01", "name": "Data-at-rest is protected" }
     ]
   },
   {
@@ -77,7 +77,7 @@
     "description": "Ensure TLS 1.2+ encryption on all data flows carrying prompts, model outputs, embeddings, and training data, especially those crossing trust boundaries.",
     "controlIds": ["CTRL-009"],
     "frameworkRefs": [
-      { "framework": "NIST CSF", "id": "PR.DS-2", "name": "Protect - Data-in-Transit" }
+      { "framework": "NIST CSF", "id": "PR.DS-02", "name": "Data-in-transit is protected" }
     ]
   },
   {
@@ -95,7 +95,7 @@
     "description": "Deploy monitoring for model inference patterns, output quality drift, unusual query volumes, and potential adversarial probing. Set up alerts for anomalous behavior.",
     "controlIds": ["CTRL-008"],
     "frameworkRefs": [
-      { "framework": "NIST CSF", "id": "DE.CM-7", "name": "Detect - Security Continuous Monitoring" }
+      { "framework": "NIST CSF", "id": "DE.CM-09", "name": "Computing hardware, software, and runtime are monitored" }
     ]
   },
   {
