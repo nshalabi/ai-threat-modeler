@@ -221,5 +221,54 @@
     "threatIds": ["THR-005"],
     "mitigationIds": ["MIT-002", "MIT-010"],
     "recommendation": "Deploy output filtering on all LLM components. Use guardrails, content safety classifiers, or moderation layers to filter harmful and sensitive content from outputs."
+  },
+  {
+    "id": "RULE-015",
+    "name": "Model output consumed downstream without validation",
+    "description": "A data flow carrying model outputs targets an interpreter, executor, or data store that does not validate or encode the content, risking injection (XSS, SSRF, SQL injection, code execution) in the consuming system.",
+    "severity": "high",
+    "category": "output-safety",
+    "conditions": [
+      { "target": "flow", "field": "properties.dataTypes", "operator": "contains", "value": "model-outputs" },
+      { "target": "node", "field": "type", "operator": "in", "value": ["tool-connector", "plugin", "backend-service", "database", "web-app"] },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["tool-connector", "plugin", "backend-service", "database", "web-app"] },
+    "threatIds": ["THR-013"],
+    "mitigationIds": ["MIT-013"],
+    "recommendation": "Treat model output as untrusted. Apply context-appropriate encoding and validation before passing it to interpreters, query engines, executors, or rendering layers."
+  },
+  {
+    "id": "RULE-016",
+    "name": "Model component without system prompt protection",
+    "description": "An LLM, hosted model API, self-hosted model, or prompt template engine has no system prompt protection, allowing the system prompt to be extracted or relied upon for confidentiality it cannot provide.",
+    "severity": "medium",
+    "category": "prompt-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["llm", "hosted-model-api", "self-hosted-model", "prompt-template-engine"] },
+      { "target": "node", "field": "properties.hasSystemPromptProtection", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["llm", "hosted-model-api", "self-hosted-model", "prompt-template-engine"] },
+    "threatIds": ["THR-014"],
+    "mitigationIds": ["MIT-014"],
+    "recommendation": "Keep secrets and sensitive logic out of system prompts. Apply prompt-hardening and enforce security controls outside the prompt, treating it as recoverable."
+  },
+  {
+    "id": "RULE-017",
+    "name": "Model component without output grounding or verification",
+    "description": "An LLM, hosted model API, self-hosted model, or RAG orchestrator has no grounding or verification controls, increasing the risk that fabricated or unverified output is relied upon.",
+    "severity": "medium",
+    "category": "output-safety",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["llm", "hosted-model-api", "self-hosted-model", "rag-orchestrator"] },
+      { "target": "node", "field": "properties.hasGroundingChecks", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["llm", "hosted-model-api", "self-hosted-model", "rag-orchestrator"] },
+    "threatIds": ["THR-015"],
+    "mitigationIds": ["MIT-015"],
+    "recommendation": "Apply retrieval grounding, attach citations, and require human verification for high-stakes outputs to reduce reliance on fabricated content."
   }
 ]

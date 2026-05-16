@@ -62,7 +62,8 @@
         "hasInputValidation": true,
         "hasLogging": true,
         "hasRBAC": true,
-        "description": "RAG orchestrator with RBAC and input validation"
+        "hasGroundingChecks": true,
+        "description": "RAG orchestrator with RBAC, input validation, and retrieval grounding"
       }
     },
     {
@@ -99,7 +100,9 @@
         "hasOutputFiltering": true,
         "hasLogging": true,
         "hasInputValidation": true,
-        "description": "Self-hosted large language model with input validation and output filtering"
+        "hasSystemPromptProtection": true,
+        "hasGroundingChecks": true,
+        "description": "Self-hosted large language model with input validation, output filtering, system prompt protection, and grounding"
       }
     },
     {

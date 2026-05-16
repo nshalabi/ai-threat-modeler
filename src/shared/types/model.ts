@@ -80,6 +80,8 @@ export interface NodeProperties {
   isExternal?: boolean
   hasInputValidation?: boolean
   hasOutputFiltering?: boolean
+  hasSystemPromptProtection?: boolean
+  hasGroundingChecks?: boolean
   modelType?: string
   description?: string
   [key: string]: unknown

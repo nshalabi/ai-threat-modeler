@@ -139,6 +139,20 @@ export function PropertyPanel(): JSX.Element {
               onChange={(v) => updateNode(selectedNode.id, { properties: { hasOutputFiltering: v } })}
             />
             <CheckboxField
+              label="Has System Prompt Protection"
+              checked={selectedNode.properties.hasSystemPromptProtection ?? false}
+              onChange={(v) =>
+                updateNode(selectedNode.id, { properties: { hasSystemPromptProtection: v } })
+              }
+            />
+            <CheckboxField
+              label="Has Grounding Checks"
+              checked={selectedNode.properties.hasGroundingChecks ?? false}
+              onChange={(v) =>
+                updateNode(selectedNode.id, { properties: { hasGroundingChecks: v } })
+              }
+            />
+            <CheckboxField
               label="Has Logging"
               checked={selectedNode.properties.hasLogging ?? false}
               onChange={(v) => updateNode(selectedNode.id, { properties: { hasLogging: v } })}

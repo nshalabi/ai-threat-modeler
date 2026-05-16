@@ -106,5 +106,32 @@
     "frameworkRefs": [
       { "framework": "MITRE ATLAS", "id": "AML.T0020", "name": "Poison Training Data" }
     ]
+  },
+  {
+    "id": "MIT-013",
+    "name": "Encode and Validate Model Output Before Downstream Use",
+    "description": "Treat model output as untrusted. Apply context-appropriate encoding/escaping and validation before passing it to interpreters, executors, query engines, or rendering layers (HTML, SQL, shell, code).",
+    "controlIds": ["CTRL-011", "CTRL-002"],
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM05:2025", "name": "Improper Output Handling - Mitigations" }
+    ]
+  },
+  {
+    "id": "MIT-014",
+    "name": "Protect and Externalize System Prompts",
+    "description": "Keep secrets and sensitive logic out of system prompts. Apply prompt-hardening, treat the system prompt as recoverable, and enforce security controls outside the prompt rather than relying on it for confidentiality.",
+    "controlIds": ["CTRL-012"],
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM07:2025", "name": "System Prompt Leakage - Mitigations" }
+    ]
+  },
+  {
+    "id": "MIT-015",
+    "name": "Ground and Verify Model Outputs",
+    "description": "Constrain responses to verified sources, attach citations, apply retrieval grounding, and require human verification for high-stakes outputs to reduce reliance on fabricated or unverified content.",
+    "controlIds": ["CTRL-013", "CTRL-008"],
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM09:2025", "name": "Misinformation - Mitigations" }
+    ]
   }
 ]

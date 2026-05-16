@@ -136,5 +136,38 @@
       { "framework": "MITRE ATLAS", "id": "AML.T0024", "name": "Exfiltration via ML Inference API", "url": "https://atlas.mitre.org/techniques/AML.T0024" }
     ],
     "mitigationIds": ["MIT-005", "MIT-011"]
+  },
+  {
+    "id": "THR-013",
+    "name": "Improper Output Handling",
+    "description": "Model output is passed to a downstream interpreter, executor, or data store without encoding, escaping, or validation, enabling injection (XSS, SSRF, SQL injection, remote code execution) in the consuming system.",
+    "category": "output-safety",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM05:2025", "name": "Improper Output Handling", "url": "https://genai.owasp.org/llmrisk/llm05-2025-improper-output-handling/" }
+    ],
+    "mitigationIds": ["MIT-013"]
+  },
+  {
+    "id": "THR-014",
+    "name": "System Prompt Leakage",
+    "description": "The system prompt is recoverable through crafted queries or contains sensitive data (credentials, internal rules, business logic), allowing an attacker to extract it and bypass intended constraints.",
+    "category": "prompt-security",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM07:2025", "name": "System Prompt Leakage", "url": "https://genai.owasp.org/llmrisk/llm07-2025-system-prompt-leakage/" }
+    ],
+    "mitigationIds": ["MIT-014"]
+  },
+  {
+    "id": "THR-015",
+    "name": "Misinformation",
+    "description": "The model produces ungrounded, fabricated, or unverified output that users rely on, leading to incorrect decisions, especially in the absence of grounding, citations, or human verification for high-stakes use.",
+    "category": "output-safety",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM09:2025", "name": "Misinformation", "url": "https://genai.owasp.org/llmrisk/llm09-2025-misinformation/" }
+    ],
+    "mitigationIds": ["MIT-015"]
   }
 ]

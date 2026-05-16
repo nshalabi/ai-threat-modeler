@@ -94,5 +94,33 @@
     "frameworkRefs": [
       { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
     ]
+  },
+  {
+    "id": "CTRL-011",
+    "name": "Output Encoding for Downstream Consumers",
+    "description": "Apply context-appropriate output encoding, escaping, and validation to model output before it is consumed by interpreters, executors, query engines, or rendering layers.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST CSF", "id": "PR.DS-5", "name": "Protect - Data Leak Protection" },
+      { "framework": "NIST AI RMF", "id": "MG-2.2", "name": "Manage AI Risks - Pre-deployment Testing" }
+    ]
+  },
+  {
+    "id": "CTRL-012",
+    "name": "System Prompt Hardening and Secret Externalization",
+    "description": "Keep secrets and sensitive logic out of system prompts, apply prompt-hardening, and enforce security controls outside the prompt rather than relying on its confidentiality.",
+    "category": "preventive",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MP-2.3", "name": "Map - AI System Requirements" }
+    ]
+  },
+  {
+    "id": "CTRL-013",
+    "name": "Output Grounding and Verification",
+    "description": "Constrain responses to verified sources, attach citations, apply retrieval grounding, and require human verification for high-stakes outputs.",
+    "category": "detective",
+    "frameworkRefs": [
+      { "framework": "NIST AI RMF", "id": "MS-2.5", "name": "Measure - Validity and Reliability" }
+    ]
   }
 ]
