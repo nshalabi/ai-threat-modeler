@@ -270,5 +270,87 @@
     "threatIds": ["THR-015"],
     "mitigationIds": ["MIT-015"],
     "recommendation": "Apply retrieval grounding, attach citations, and require human verification for high-stakes outputs to reduce reliance on fabricated content."
+  },
+  {
+    "id": "RULE-018",
+    "name": "Internet-facing model endpoint without access control",
+    "description": "A model or inference endpoint is internet-facing without RBAC, allowing unbounded querying that enables model inversion and training-data reconstruction.",
+    "severity": "medium",
+    "category": "data-exposure",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["self-hosted-model", "hosted-model-api", "inference-pipeline", "llm"] },
+      { "target": "node", "field": "properties.internetFacing", "operator": "equals", "value": true },
+      { "target": "node", "field": "properties.hasRBAC", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["self-hosted-model", "hosted-model-api", "inference-pipeline", "llm"] },
+    "threatIds": ["THR-016"],
+    "mitigationIds": ["MIT-005", "MIT-016"],
+    "recommendation": "Restrict model query access with authentication and RBAC, apply rate limiting, and monitor query patterns to limit reconstruction of training data."
+  },
+  {
+    "id": "RULE-019",
+    "name": "Fine-tuning or model registry using an unverified external base model",
+    "description": "A fine-tuning pipeline or model registry sources an external pre-trained model without provenance or integrity validation, risking inherited backdoors via transfer learning.",
+    "severity": "high",
+    "category": "supply-chain",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["fine-tuning-pipeline", "model-registry"] },
+      { "target": "node", "field": "properties.isExternal", "operator": "equals", "value": true },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["fine-tuning-pipeline", "model-registry"] },
+    "threatIds": ["THR-017"],
+    "mitigationIds": ["MIT-008"],
+    "recommendation": "Verify the provenance, integrity, and signatures of pre-trained base models before fine-tuning. Maintain a model bill-of-materials and scan for backdoors."
+  },
+  {
+    "id": "RULE-020",
+    "name": "Feedback or retraining data without validation",
+    "description": "A feedback collection or training data repository ingests data without validation, allowing an attacker to skew model behavior over time through manipulated retraining data.",
+    "severity": "medium",
+    "category": "data-integrity",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["feedback-collection", "training-data-repo"] },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["feedback-collection", "training-data-repo"] },
+    "threatIds": ["THR-018"],
+    "mitigationIds": ["MIT-007", "MIT-012"],
+    "recommendation": "Validate and monitor feedback and retraining data for manipulation. Apply anomaly detection and review processes before data is used for retraining."
+  },
+  {
+    "id": "RULE-021",
+    "name": "Model output flow without integrity protection",
+    "description": "A data flow carrying model outputs is not encrypted, allowing an attacker to tamper with results in transit before they reach the consuming system.",
+    "severity": "medium",
+    "category": "output-safety",
+    "conditions": [
+      { "target": "flow", "field": "properties.dataTypes", "operator": "contains", "value": "model-outputs" },
+      { "target": "flow", "field": "properties.encrypted", "operator": "equals", "value": false }
+    ],
+    "logicOperator": "and",
+    "threatIds": ["THR-019"],
+    "mitigationIds": ["MIT-009", "MIT-013"],
+    "recommendation": "Encrypt and authenticate flows carrying model outputs end to end so results cannot be altered in transit. Validate output integrity at the consumer."
+  },
+  {
+    "id": "RULE-022",
+    "name": "Model store or training environment without access control and logging",
+    "description": "A model registry, fine-tuning pipeline, or inference pipeline lacks both RBAC and logging, allowing direct manipulation of model parameters or weights without detection.",
+    "severity": "high",
+    "category": "data-integrity",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["model-registry", "fine-tuning-pipeline", "inference-pipeline"] },
+      { "target": "node", "field": "properties.hasRBAC", "operator": "not-equals", "value": true },
+      { "target": "node", "field": "properties.hasLogging", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["model-registry", "fine-tuning-pipeline", "inference-pipeline"] },
+    "threatIds": ["THR-020"],
+    "mitigationIds": ["MIT-008", "MIT-007"],
+    "recommendation": "Enforce RBAC and audit logging on model registries, training environments, and inference pipelines. Verify model integrity with signatures and checksums."
   }
 ]

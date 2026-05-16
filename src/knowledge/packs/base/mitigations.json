@@ -133,5 +133,14 @@
     "frameworkRefs": [
       { "framework": "OWASP LLM Top 10", "id": "LLM09:2025", "name": "Misinformation - Mitigations" }
     ]
+  },
+  {
+    "id": "MIT-016",
+    "name": "Apply Privacy-Preserving Inference Controls",
+    "description": "Limit and monitor model query access, and apply techniques such as output perturbation, differential privacy, or confidence masking to reduce reconstruction of training data via repeated queries.",
+    "controlIds": ["CTRL-005", "CTRL-008"],
+    "frameworkRefs": [
+      { "framework": "OWASP ML Top 10", "id": "ML03:2023", "name": "Model Inversion Attack - Mitigations" }
+    ]
   }
 ]

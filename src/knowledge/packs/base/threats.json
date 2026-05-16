@@ -174,5 +174,62 @@
       { "framework": "OWASP LLM Top 10", "id": "LLM09:2025", "name": "Misinformation", "url": "https://genai.owasp.org/llmrisk/llm09-2025-misinformation/" }
     ],
     "mitigationIds": ["MIT-015"]
+  },
+  {
+    "id": "THR-016",
+    "name": "Model Inversion Attack",
+    "description": "An attacker repeatedly queries a model to reconstruct sensitive training data or input features, recovering private information embedded in the model.",
+    "category": "data-exposure",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "OWASP ML Top 10", "id": "ML03:2023", "name": "Model Inversion Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML03_2023-Model_Inversion_Attack" }
+    ],
+    "mitigationIds": ["MIT-005", "MIT-016"]
+  },
+  {
+    "id": "THR-017",
+    "name": "Transfer Learning Attack",
+    "description": "A fine-tuned model inherits hidden malicious behavior because it was built on a poisoned or backdoored pre-trained base model obtained from an untrusted source.",
+    "category": "supply-chain",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP ML Top 10", "id": "ML07:2023", "name": "Transfer Learning Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML07_2023-Transfer_Learning_Attack" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "ML Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" }
+    ],
+    "mitigationIds": ["MIT-008"]
+  },
+  {
+    "id": "THR-018",
+    "name": "Model Skewing",
+    "description": "An attacker manipulates feedback or retraining data over time to gradually bias model behavior toward attacker-favorable outcomes.",
+    "category": "data-integrity",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "OWASP ML Top 10", "id": "ML08:2023", "name": "Model Skewing", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML08_2023-Model_Skewing" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0020", "name": "Poison Training Data", "url": "https://atlas.mitre.org/techniques/AML.T0020" }
+    ],
+    "mitigationIds": ["MIT-007", "MIT-012"]
+  },
+  {
+    "id": "THR-019",
+    "name": "Output Integrity Attack",
+    "description": "Model output is tampered with in transit between the model and the consuming system, causing users to act on altered results.",
+    "category": "output-safety",
+    "severity": "medium",
+    "frameworkRefs": [
+      { "framework": "OWASP ML Top 10", "id": "ML09:2023", "name": "Output Integrity Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML09_2023-Output_Integrity_Attack" }
+    ],
+    "mitigationIds": ["MIT-009", "MIT-013"]
+  },
+  {
+    "id": "THR-020",
+    "name": "Model Poisoning",
+    "description": "An attacker directly manipulates model parameters or weights, through an unprotected model store, registry, or training environment, introducing backdoors independent of training data.",
+    "category": "data-integrity",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP ML Top 10", "id": "ML10:2023", "name": "Model Poisoning", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML10_2023-Model_Poisoning" }
+    ],
+    "mitigationIds": ["MIT-007", "MIT-008"]
   }
 ]
