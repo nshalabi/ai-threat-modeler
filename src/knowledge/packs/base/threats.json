@@ -43,7 +43,8 @@
     "category": "availability",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM10:2025", "name": "Unbounded Consumption", "url": "https://genai.owasp.org/llmrisk/llm10-2025-unbounded-consumption/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM10:2025", "name": "Unbounded Consumption", "url": "https://genai.owasp.org/llmrisk/llm10-2025-unbounded-consumption/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0029", "name": "Denial of AI Service", "url": "https://atlas.mitre.org/techniques/AML.T0029" }
     ],
     "mitigationIds": ["MIT-005"]
   },
@@ -54,7 +55,8 @@
     "category": "data-exposure",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM02:2025", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm02-2025-sensitive-information-disclosure/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM02:2025", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm02-2025-sensitive-information-disclosure/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0057", "name": "LLM Data Leakage", "url": "https://atlas.mitre.org/techniques/AML.T0057" }
     ],
     "mitigationIds": ["MIT-002", "MIT-006", "MIT-009"]
   },
@@ -65,7 +67,8 @@
     "category": "agent-security",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM06:2025", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm06-2025-excessive-agency/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM06:2025", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm06-2025-excessive-agency/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0053", "name": "AI Agent Tool Invocation", "url": "https://atlas.mitre.org/techniques/AML.T0053" }
     ],
     "mitigationIds": ["MIT-003", "MIT-004"]
   },
@@ -76,7 +79,8 @@
     "category": "agent-security",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM06:2025", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm06-2025-excessive-agency/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM06:2025", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm06-2025-excessive-agency/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0053", "name": "AI Agent Tool Invocation", "url": "https://atlas.mitre.org/techniques/AML.T0053" }
     ],
     "mitigationIds": ["MIT-003", "MIT-004"]
   },
@@ -88,7 +92,7 @@
     "severity": "high",
     "frameworkRefs": [
       { "framework": "OWASP LLM Top 10", "id": "LLM03:2025", "name": "Supply Chain", "url": "https://genai.owasp.org/llmrisk/llm03-2025-supply-chain/" },
-      { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "ML Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "AI Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" },
       { "framework": "OWASP ML Top 10", "id": "ML06:2023", "name": "AI Supply Chain Attacks", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML06_2023-AI_Supply_Chain_Attacks" }
     ],
     "mitigationIds": ["MIT-008"]
@@ -100,7 +104,8 @@
     "category": "data-exposure",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM08:2025", "name": "Vector and Embedding Weaknesses", "url": "https://genai.owasp.org/llmrisk/llm08-2025-vector-and-embedding-weaknesses/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM08:2025", "name": "Vector and Embedding Weaknesses", "url": "https://genai.owasp.org/llmrisk/llm08-2025-vector-and-embedding-weaknesses/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0057", "name": "LLM Data Leakage", "url": "https://atlas.mitre.org/techniques/AML.T0057" }
     ],
     "mitigationIds": ["MIT-003", "MIT-006"]
   },
@@ -111,7 +116,7 @@
     "category": "data-exposure",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "MITRE ATLAS", "id": "AML.T0024.002", "name": "Infer Training Data Membership", "url": "https://atlas.mitre.org/techniques/AML.T0024.002" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0024.001", "name": "Invert AI Model", "url": "https://atlas.mitre.org/techniques/AML.T0024.001" },
       { "framework": "OWASP LLM Top 10", "id": "LLM08:2025", "name": "Vector and Embedding Weaknesses", "url": "https://genai.owasp.org/llmrisk/llm08-2025-vector-and-embedding-weaknesses/" },
       { "framework": "OWASP ML Top 10", "id": "ML04:2023", "name": "Membership Inference Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML04_2023-Membership_Inference_Attack" }
     ],
@@ -124,7 +129,7 @@
     "category": "model-security",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "MITRE ATLAS", "id": "AML.T0015", "name": "Evade ML Model", "url": "https://atlas.mitre.org/techniques/AML.T0015" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0015", "name": "Evade AI Model", "url": "https://atlas.mitre.org/techniques/AML.T0015" },
       { "framework": "OWASP ML Top 10", "id": "ML01:2023", "name": "Input Manipulation Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML01_2023-Input_Manipulation_Attack" }
     ],
     "mitigationIds": ["MIT-001", "MIT-010", "MIT-011"]
@@ -137,7 +142,7 @@
     "severity": "high",
     "frameworkRefs": [
       { "framework": "OWASP LLM Top 10", "id": "LLM10:2025", "name": "Unbounded Consumption", "url": "https://genai.owasp.org/llmrisk/llm10-2025-unbounded-consumption/" },
-      { "framework": "MITRE ATLAS", "id": "AML.T0024", "name": "Exfiltration via ML Inference API", "url": "https://atlas.mitre.org/techniques/AML.T0024" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0024", "name": "Exfiltration via AI Inference API", "url": "https://atlas.mitre.org/techniques/AML.T0024" },
       { "framework": "OWASP ML Top 10", "id": "ML05:2023", "name": "Model Theft", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML05_2023-Model_Theft" }
     ],
     "mitigationIds": ["MIT-005", "MIT-011"]
@@ -160,7 +165,8 @@
     "category": "prompt-security",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM07:2025", "name": "System Prompt Leakage", "url": "https://genai.owasp.org/llmrisk/llm07-2025-system-prompt-leakage/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM07:2025", "name": "System Prompt Leakage", "url": "https://genai.owasp.org/llmrisk/llm07-2025-system-prompt-leakage/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0056", "name": "Extract LLM System Prompt", "url": "https://atlas.mitre.org/techniques/AML.T0056" }
     ],
     "mitigationIds": ["MIT-014"]
   },
@@ -182,7 +188,8 @@
     "category": "data-exposure",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "OWASP ML Top 10", "id": "ML03:2023", "name": "Model Inversion Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML03_2023-Model_Inversion_Attack" }
+      { "framework": "OWASP ML Top 10", "id": "ML03:2023", "name": "Model Inversion Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML03_2023-Model_Inversion_Attack" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0024.001", "name": "Invert AI Model", "url": "https://atlas.mitre.org/techniques/AML.T0024.001" }
     ],
     "mitigationIds": ["MIT-005", "MIT-016"]
   },
@@ -194,7 +201,7 @@
     "severity": "high",
     "frameworkRefs": [
       { "framework": "OWASP ML Top 10", "id": "ML07:2023", "name": "Transfer Learning Attack", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML07_2023-Transfer_Learning_Attack" },
-      { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "ML Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" }
+      { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "AI Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" }
     ],
     "mitigationIds": ["MIT-008"]
   },
@@ -228,7 +235,8 @@
     "category": "data-integrity",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP ML Top 10", "id": "ML10:2023", "name": "Model Poisoning", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML10_2023-Model_Poisoning" }
+      { "framework": "OWASP ML Top 10", "id": "ML10:2023", "name": "Model Poisoning", "url": "https://owasp.org/www-project-machine-learning-security-top-10/docs/ML10_2023-Model_Poisoning" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0018.000", "name": "Poison AI Model", "url": "https://atlas.mitre.org/techniques/AML.T0018.000" }
     ],
     "mitigationIds": ["MIT-007", "MIT-008"]
   }
