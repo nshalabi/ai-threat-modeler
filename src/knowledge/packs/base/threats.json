@@ -239,5 +239,39 @@
       { "framework": "MITRE ATLAS", "id": "AML.T0018.000", "name": "Poison AI Model", "url": "https://atlas.mitre.org/techniques/AML.T0018.000" }
     ],
     "mitigationIds": ["MIT-007", "MIT-008"]
+  },
+  {
+    "id": "THR-021",
+    "name": "LLM Jailbreak",
+    "description": "Crafted inputs bypass the model's safety alignment and guardrails, eliciting disallowed, harmful, or policy-violating output. Distinct from prompt injection: the target is the model's safety training, not its instructions.",
+    "category": "prompt-security",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "OWASP LLM Top 10", "id": "LLM01:2025", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-2025-prompt-injection/" },
+      { "framework": "MITRE ATLAS", "id": "AML.T0054", "name": "LLM Jailbreak", "url": "https://atlas.mitre.org/techniques/AML.T0054" }
+    ],
+    "mitigationIds": ["MIT-001", "MIT-010"]
+  },
+  {
+    "id": "THR-022",
+    "name": "AI Agent Context Poisoning",
+    "description": "An attacker injects malicious content into an AI agent's memory or context store so that the agent's later reasoning and decisions are manipulated across turns or sessions.",
+    "category": "agent-security",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "MITRE ATLAS", "id": "AML.T0080", "name": "AI Agent Context Poisoning", "url": "https://atlas.mitre.org/techniques/AML.T0080" }
+    ],
+    "mitigationIds": ["MIT-001", "MIT-012"]
+  },
+  {
+    "id": "THR-023",
+    "name": "Exfiltration via AI Agent Tool Invocation",
+    "description": "An AI agent's tool connectors are abused to exfiltrate sensitive data to attacker-influenced destinations, using the agent's legitimate tool access as the exfiltration channel.",
+    "category": "agent-security",
+    "severity": "high",
+    "frameworkRefs": [
+      { "framework": "MITRE ATLAS", "id": "AML.T0086", "name": "Exfiltration via AI Agent Tool Invocation", "url": "https://atlas.mitre.org/techniques/AML.T0086" }
+    ],
+    "mitigationIds": ["MIT-003", "MIT-004", "MIT-011"]
   }
 ]

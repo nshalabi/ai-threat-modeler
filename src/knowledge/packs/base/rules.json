@@ -352,5 +352,55 @@
     "threatIds": ["THR-020"],
     "mitigationIds": ["MIT-008", "MIT-007"],
     "recommendation": "Enforce RBAC and audit logging on model registries, training environments, and inference pipelines. Verify model integrity with signatures and checksums."
+  },
+  {
+    "id": "RULE-023",
+    "name": "Model component without input validation and output filtering",
+    "description": "An LLM or model component has neither input validation nor output filtering, leaving no guardrail layer to resist jailbreak attempts that bypass safety alignment.",
+    "severity": "high",
+    "category": "prompt-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["llm", "hosted-model-api", "self-hosted-model"] },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true },
+      { "target": "node", "field": "properties.hasOutputFiltering", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["llm", "hosted-model-api", "self-hosted-model"] },
+    "threatIds": ["THR-021"],
+    "mitigationIds": ["MIT-001", "MIT-010"],
+    "recommendation": "Deploy both input and output guardrails on model components. Use jailbreak/abuse classifiers and content safety filters in addition to safety alignment."
+  },
+  {
+    "id": "RULE-024",
+    "name": "Agent memory store without input validation",
+    "description": "A memory store feeding an AI agent does not validate ingested content, allowing an attacker to poison the agent's context so future decisions are manipulated.",
+    "severity": "high",
+    "category": "agent-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "equals", "value": "memory-store" },
+      { "target": "node", "field": "properties.hasInputValidation", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["memory-store"] },
+    "threatIds": ["THR-022"],
+    "mitigationIds": ["MIT-001", "MIT-012"],
+    "recommendation": "Validate and sanitize content before it is written to agent memory or context stores. Segregate trusted and untrusted context and constrain what can influence future reasoning."
+  },
+  {
+    "id": "RULE-025",
+    "name": "Tool connector without access control and logging",
+    "description": "A tool connector or plugin has neither RBAC nor logging, allowing an agent's tool access to be abused to exfiltrate data without restriction or detection.",
+    "severity": "high",
+    "category": "agent-security",
+    "conditions": [
+      { "target": "node", "field": "type", "operator": "in", "value": ["tool-connector", "plugin"] },
+      { "target": "node", "field": "properties.hasRBAC", "operator": "not-equals", "value": true },
+      { "target": "node", "field": "properties.hasLogging", "operator": "not-equals", "value": true }
+    ],
+    "logicOperator": "and",
+    "appliesTo": { "nodeTypes": ["tool-connector", "plugin"] },
+    "threatIds": ["THR-023"],
+    "mitigationIds": ["MIT-003", "MIT-004", "MIT-011"],
+    "recommendation": "Scope tool connectors with least-privilege RBAC, log all tool invocations, and monitor for anomalous egress destinations or data volumes."
   }
 ]
