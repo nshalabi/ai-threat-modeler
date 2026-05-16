@@ -5,7 +5,7 @@
     "description": "Apply input validation rules, character filtering, length limits, and prompt injection detection to all user-supplied prompts before they reach the model.",
     "controlIds": ["CTRL-001", "CTRL-010"],
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM01", "name": "Prompt Injection - Mitigations" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM01:2025", "name": "Prompt Injection - Mitigations" }
     ]
   },
   {
@@ -14,7 +14,7 @@
     "description": "Scan and filter model outputs for sensitive information, PII, credentials, and harmful content before delivering to users or downstream systems.",
     "controlIds": ["CTRL-002", "CTRL-006"],
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM06", "name": "Sensitive Information Disclosure - Mitigations" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM02:2025", "name": "Sensitive Information Disclosure - Mitigations" }
     ]
   },
   {
@@ -68,7 +68,7 @@
     "description": "Verify model provenance, check cryptographic signatures, and validate model checksums before deployment. Maintain a model SBOM and scan dependencies for vulnerabilities.",
     "controlIds": ["CTRL-007"],
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM05", "name": "Supply Chain Vulnerabilities - Mitigations" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM03:2025", "name": "Supply Chain - Mitigations" }
     ]
   },
   {

@@ -6,7 +6,7 @@
     "category": "prompt-security",
     "severity": "critical",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM01", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/" },
+      { "framework": "OWASP LLM Top 10", "id": "LLM01:2025", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-2025-prompt-injection/" },
       { "framework": "MITRE ATLAS", "id": "AML.T0051", "name": "LLM Prompt Injection", "url": "https://atlas.mitre.org/techniques/AML.T0051" }
     ],
     "mitigationIds": ["MIT-001", "MIT-010"]
@@ -18,7 +18,7 @@
     "category": "prompt-security",
     "severity": "critical",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM01", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-prompt-injection/" },
+      { "framework": "OWASP LLM Top 10", "id": "LLM01:2025", "name": "Prompt Injection", "url": "https://genai.owasp.org/llmrisk/llm01-2025-prompt-injection/" },
       { "framework": "MITRE ATLAS", "id": "AML.T0051.001", "name": "LLM Prompt Injection: Indirect", "url": "https://atlas.mitre.org/techniques/AML.T0051.001" }
     ],
     "mitigationIds": ["MIT-001", "MIT-002", "MIT-010"]
@@ -30,7 +30,7 @@
     "category": "data-integrity",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM03", "name": "Training Data Poisoning", "url": "https://genai.owasp.org/llmrisk/llm03-training-data-poisoning/" },
+      { "framework": "OWASP LLM Top 10", "id": "LLM04:2025", "name": "Data and Model Poisoning", "url": "https://genai.owasp.org/llmrisk/llm04-2025-data-and-model-poisoning/" },
       { "framework": "MITRE ATLAS", "id": "AML.T0020", "name": "Poison Training Data", "url": "https://atlas.mitre.org/techniques/AML.T0020" }
     ],
     "mitigationIds": ["MIT-007", "MIT-012"]
@@ -42,7 +42,7 @@
     "category": "availability",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM04", "name": "Model Denial of Service", "url": "https://genai.owasp.org/llmrisk/llm04-model-denial-of-service/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM10:2025", "name": "Unbounded Consumption", "url": "https://genai.owasp.org/llmrisk/llm10-2025-unbounded-consumption/" }
     ],
     "mitigationIds": ["MIT-005"]
   },
@@ -53,7 +53,7 @@
     "category": "data-exposure",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM06", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM02:2025", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm02-2025-sensitive-information-disclosure/" }
     ],
     "mitigationIds": ["MIT-002", "MIT-006", "MIT-009"]
   },
@@ -64,7 +64,7 @@
     "category": "agent-security",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM07", "name": "Insecure Plugin Design", "url": "https://genai.owasp.org/llmrisk/llm07-insecure-plugin-design/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM06:2025", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm06-2025-excessive-agency/" }
     ],
     "mitigationIds": ["MIT-003", "MIT-004"]
   },
@@ -75,7 +75,7 @@
     "category": "agent-security",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM08", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm08-excessive-agency/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM06:2025", "name": "Excessive Agency", "url": "https://genai.owasp.org/llmrisk/llm06-2025-excessive-agency/" }
     ],
     "mitigationIds": ["MIT-003", "MIT-004"]
   },
@@ -86,7 +86,7 @@
     "category": "supply-chain",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM05", "name": "Supply Chain Vulnerabilities", "url": "https://genai.owasp.org/llmrisk/llm05-supply-chain-vulnerabilities/" },
+      { "framework": "OWASP LLM Top 10", "id": "LLM03:2025", "name": "Supply Chain", "url": "https://genai.owasp.org/llmrisk/llm03-2025-supply-chain/" },
       { "framework": "MITRE ATLAS", "id": "AML.T0010", "name": "ML Supply Chain Compromise", "url": "https://atlas.mitre.org/techniques/AML.T0010" }
     ],
     "mitigationIds": ["MIT-008"]
@@ -98,7 +98,7 @@
     "category": "data-exposure",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM06", "name": "Sensitive Information Disclosure", "url": "https://genai.owasp.org/llmrisk/llm06-sensitive-information-disclosure/" }
+      { "framework": "OWASP LLM Top 10", "id": "LLM08:2025", "name": "Vector and Embedding Weaknesses", "url": "https://genai.owasp.org/llmrisk/llm08-2025-vector-and-embedding-weaknesses/" }
     ],
     "mitigationIds": ["MIT-003", "MIT-006"]
   },
@@ -109,7 +109,8 @@
     "category": "data-exposure",
     "severity": "medium",
     "frameworkRefs": [
-      { "framework": "MITRE ATLAS", "id": "AML.T0024.002", "name": "Infer Training Data Membership", "url": "https://atlas.mitre.org/techniques/AML.T0024.002" }
+      { "framework": "MITRE ATLAS", "id": "AML.T0024.002", "name": "Infer Training Data Membership", "url": "https://atlas.mitre.org/techniques/AML.T0024.002" },
+      { "framework": "OWASP LLM Top 10", "id": "LLM08:2025", "name": "Vector and Embedding Weaknesses", "url": "https://genai.owasp.org/llmrisk/llm08-2025-vector-and-embedding-weaknesses/" }
     ],
     "mitigationIds": ["MIT-006", "MIT-009"]
   },
@@ -131,7 +132,7 @@
     "category": "model-security",
     "severity": "high",
     "frameworkRefs": [
-      { "framework": "OWASP LLM Top 10", "id": "LLM10", "name": "Model Theft", "url": "https://genai.owasp.org/llmrisk/llm10-model-theft/" },
+      { "framework": "OWASP LLM Top 10", "id": "LLM10:2025", "name": "Unbounded Consumption", "url": "https://genai.owasp.org/llmrisk/llm10-2025-unbounded-consumption/" },
       { "framework": "MITRE ATLAS", "id": "AML.T0024", "name": "Exfiltration via ML Inference API", "url": "https://atlas.mitre.org/techniques/AML.T0024" }
     ],
     "mitigationIds": ["MIT-005", "MIT-011"]
