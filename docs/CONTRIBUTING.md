@@ -23,7 +23,9 @@ This starts the app in development mode with hot reload via electron-vite.
 
 Other useful commands:
 
-- `npm run build` -- Build for production
+- `npm run dev:web` -- Run the web build in dev mode
+- `npm run build` -- Build the desktop app for production
+- `npm run build:web` -- Build the static web app
 - `npm run typecheck` -- Type-check all TypeScript code
 
 ## Project Structure
@@ -34,7 +36,7 @@ The codebase is organized into Electron main process, preload, renderer (React U
 
 ### Add Analysis Rules
 
-Analysis rules are declarative JSON. You can add new rules to detect threats without writing any application code. See [KNOWLEDGE-PACKS.md](KNOWLEDGE-PACKS.md) for the rule format and condition system.
+Analysis rules are declarative JSON — no application code required. Both single-component rules (`conditions`) and multi-hop chained-attack rules (`pathPattern`) are supported. See [KNOWLEDGE-PACKS.md](KNOWLEDGE-PACKS.md) for the rule format and condition system, and [ATTACK-PATHS.md](ATTACK-PATHS.md) for how attack-path detection is evaluated.
 
 ### Extend Knowledge Packs
 
@@ -62,7 +64,7 @@ Open an issue describing the problem or idea. Include steps to reproduce for bug
 
 ## Knowledge Pack Contributions
 
-If you are contributing threats, rules, or framework mappings, see [KNOWLEDGE-PACKS.md](KNOWLEDGE-PACKS.md) for the full guide on pack structure, schemas, and ID conventions.
+If you are contributing threats, rules, or framework mappings, see [KNOWLEDGE-PACKS.md](KNOWLEDGE-PACKS.md) for the full guide on pack structure, schemas, and ID conventions. Framework reference IDs (MITRE ATLAS, OWASP, NIST) should be source-verified against the framework's authoritative data, not asserted from memory.
 
 ## Pull Request Guidelines
 

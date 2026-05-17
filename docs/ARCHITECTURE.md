@@ -104,8 +104,9 @@ Key fields:
 - `type` -- Component type from the node library (e.g., `llm`, `vector-db`, `api-gateway`)
 - `label` -- User-provided display name
 - `position` -- Canvas coordinates (x, y)
-- `properties` -- Type-specific properties (e.g., `isExternal`, `storesData`, `classification`)
-- `trustBoundaryId` -- Optional reference to containing trust boundary
+- `properties` -- Type-specific properties (e.g., `isExternal`, `internetFacing`, `hasRBAC`, `hasInputValidation`, `hasSystemPromptProtection`, `hasGroundingChecks`, `dataClassification`)
+
+Trust-boundary membership is expressed on the boundary (`nodeIds`), not on the node.
 
 ### DataFlow
 
@@ -113,10 +114,10 @@ A directed connection between two nodes representing data movement.
 
 Key fields:
 - `id` -- Unique flow identifier
-- `sourceNodeId` -- Origin node
-- `targetNodeId` -- Destination node
+- `source` -- Origin node id
+- `target` -- Destination node id
 - `label` -- Description of what flows
-- `properties` -- Metadata (e.g., `protocol`, `encrypted`, `dataClassification`, `authentication`)
+- `properties` -- Metadata (e.g., `protocol`, `encrypted`, `authenticated`, `dataClassification`, `dataTypes`, `crossesTrustBoundary`)
 
 ### TrustBoundary
 
@@ -124,9 +125,10 @@ A security zone that groups nodes sharing a common trust level. Visualized as a 
 
 Key fields:
 - `id` -- Unique boundary identifier
-- `label` -- Boundary name (e.g., "Internal Network", "Cloud Provider", "User Device")
-- `trustLevel` -- Relative trust level (e.g., `high`, `medium`, `low`, `untrusted`)
+- `type` -- Boundary type (e.g., `public-internet`, `cloud-tenant`, `model-provider`, `sensitive-data-zone`)
+- `label` -- Boundary name
 - `nodeIds` -- Array of node IDs contained within the boundary
+- `properties` -- Optional boundary metadata
 
 ## Knowledge Model
 
@@ -174,7 +176,7 @@ Key fields:
 A link to an external framework entry.
 
 Fields:
-- `framework` -- Framework identifier (e.g., `MITRE_ATLAS`, `OWASP_LLM_TOP10`, `NIST_AI_RMF`, `NIST_CSF`)
+- `framework` -- Canonical framework name string (e.g., `MITRE ATLAS`, `OWASP LLM Top 10`, `OWASP ML Top 10`, `NIST AI RMF`, `NIST CSF`)
 - `id` -- The framework's own identifier (e.g., `AML.T0051`)
 - `name` -- Human-readable name from the framework
 - `url` -- Optional URL to the framework page
@@ -189,8 +191,9 @@ Key fields:
 - `description` -- What the rule detects
 - `severity` -- Finding severity when triggered
 - `category` -- Rule category
-- `conditions` -- Array of condition objects (see Analysis Pipeline)
-- `logicOperator` -- `AND` or `OR` for combining conditions
+- `conditions` -- Array of condition objects for single-component rules (see Analysis Pipeline)
+- `logicOperator` -- `and` or `or` for combining conditions (default `and`)
+- `pathPattern` -- Multi-hop path matcher for chained-attack rules (see Multi-hop path rules). A rule uses **either** `conditions` **or** `pathPattern`, never both.
 - `appliesTo` -- Optional filter for which node/flow types the rule targets
 - `threatIds` -- Threat IDs to reference in the finding
 - `mitigationIds` -- Mitigation IDs to recommend in the finding
@@ -227,38 +230,61 @@ For each rule, the engine determines the target scope based on `appliesTo`:
 
 Each condition in the rule is evaluated against the current target (node, flow, or project). A condition specifies:
 
-- `target` -- What to inspect (`node`, `flow`, `sourceNode`, `targetNode`, `trustBoundary`)
-- `field` -- Dot-notation path to a property (e.g., `properties.isExternal`, `properties.encrypted`)
-- `operator` -- Comparison operator (`equals`, `notEquals`, `contains`, `exists`, `in`, etc.)
-- `value` -- Expected value
+- `target` -- What to inspect: `node`, `flow`, `boundary`, or `model`
+- `field` -- Dot-notation path to a property (e.g., `type`, `properties.isExternal`, `properties.encrypted`)
+- `operator` -- One of `equals`, `not-equals`, `contains`, `not-contains`, `exists`, `not-exists`, `in`, `not-in`
+- `value` -- Expected value (optional for `exists`/`not-exists`)
 
-Conditions are combined using the rule's `logicOperator` (AND requires all to match, OR requires at least one).
+Conditions are combined using the rule's `logicOperator` (`and` requires all to match, `or` requires at least one; default `and`). For flow-targeted rules the destination node is also exposed as `node`, so a flow rule can constrain the target component.
 
-### 4. Example: "Sensitive data sent to external model"
+### 4. Example: "Sensitive data sent to external model provider"
 
-Consider a rule that detects when sensitive data flows to an external LLM:
+Consider a rule that detects when sensitive data flows to a hosted (external) model API:
 
 ```json
 {
   "id": "RULE-001",
-  "name": "Sensitive data to external model",
+  "name": "Sensitive data sent to external model provider",
+  "severity": "high",
+  "category": "data-exposure",
   "conditions": [
-    { "target": "targetNode", "field": "type", "operator": "equals", "value": "llm" },
-    { "target": "targetNode", "field": "properties.isExternal", "operator": "equals", "value": true },
-    { "target": "flow", "field": "properties.dataClassification", "operator": "in", "value": ["confidential", "restricted"] }
+    { "target": "flow", "field": "properties.dataClassification", "operator": "in", "value": ["confidential", "restricted"] },
+    { "target": "node", "field": "type", "operator": "equals", "value": "hosted-model-api" }
   ],
-  "logicOperator": "AND",
-  "appliesTo": { "type": "dataFlow" }
+  "logicOperator": "and",
+  "appliesTo": { "nodeTypes": ["hosted-model-api"] },
+  "threatIds": ["THR-005"],
+  "mitigationIds": ["MIT-006", "MIT-009"],
+  "recommendation": "Classify data before sending to external providers; mask or use private endpoints."
 }
 ```
 
-For each data flow in the project, the engine:
+For each data flow whose destination is a `hosted-model-api` node, the engine:
 
-1. Checks if the target node's type is `llm`
-2. Checks if that node's `isExternal` property is `true`
-3. Checks if the flow's `dataClassification` is `confidential` or `restricted`
+1. Checks the flow's `dataClassification` is `confidential` or `restricted`
+2. Checks the destination node's `type` is `hosted-model-api`
 
-If all three conditions match, the rule fires.
+If both conditions match, the rule fires. (This is the actual `RULE-001` from
+the base pack.)
+
+### 4b. Multi-hop path rules
+
+A rule with a `pathPattern` instead of `conditions` matches a **path through
+the component graph** (nodes connected by directed flows), expressing chained
+attacks that no single-component rule can capture. The pattern has:
+
+- `from` -- node conditions for the untrusted source
+- `to` -- node conditions for the target/sink
+- `without` -- node conditions for a control whose presence on the path breaks the chain
+- `edge` -- optional flow conditions every traversed flow must satisfy
+- `maxHops` -- optional bound (default 12)
+
+Evaluation is **existential over simple paths**: the rule fires when at least
+one control-free path from a `from` node to a `to` node exists. One finding is
+emitted per reachable target, evidenced by the shortest such path. The same
+traversal (`findControlFreePaths`) backs both rule evaluation and the
+interactive Attack-path probe. See [ATTACK-PATHS.md](ATTACK-PATHS.md) for the
+full semantics.
 
 ### 5. Finding Generation
 
@@ -266,7 +292,12 @@ When a rule fires, a Finding is created containing:
 
 - The rule ID and name
 - Severity from the rule
-- A rationale string explaining why the rule matched (which conditions were satisfied and what values were found)
+- A rationale string explaining why the rule matched
+- A structured **derivation**: for single-component rules, the per-condition
+  trace (`ConditionTrace`: field, operator, expected vs. actual, pass/fail)
+  that powers the "Why this fired" panel; for path rules, the ordered attack
+  path (`PathDerivation`: node/flow chain, the missing control, vulnerable
+  target count)
 - References to the matched node(s) and/or flow(s)
 - Threat IDs and mitigation IDs from the rule, resolved via the KnowledgeEngine
 - Framework references from the associated threats

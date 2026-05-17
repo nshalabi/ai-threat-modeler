@@ -80,3 +80,26 @@ Path rules are declarative JSON in the knowledge pack. A rule uses either
 against flows. All conditions in a group must pass (AND). The same condition
 vocabulary (`field`, `operator`, `value`) used by single-component rules
 applies, so no new syntax is needed.
+
+## Exploring paths in the UI
+
+The **Attack Paths** panel (toolbar) makes detection interactive:
+
+- **Detected chains** — every multi-hop path-rule finding from the last
+  analysis. Selecting one drives a canvas overlay: numbered sequence badges
+  along the chain, an **⚠ ENTRY** marker on the untrusted source, a
+  **◎ TARGET** marker on the sink, and a spotlight that dims everything off
+  the path.
+- **Probe a component** — select an asset (model, tool, datastore, registry,
+  memory…) and the panel finds *every* control-free path from an untrusted
+  source to it, even where no rule fired. The probe button is enabled only for
+  asset/sink components; a always-present **Suggested targets** list offers
+  the model's assets as one-click probes. If an asset has no control-free
+  path, the panel reports that explicitly as a positive result.
+
+The probe uses the same `findControlFreePaths` traversal as rule evaluation,
+with a fixed untrusted-source set (`external-actor`, `prompt-input`,
+`external-knowledge-source`, `dataset-source`, `document-ingestion-pipeline`)
+and the standard control node types
+(`guardrail`, `moderation-layer`, `human-in-the-loop`, `evaluation-engine`,
+`output-post-processor`).

@@ -8,7 +8,7 @@
 ![GitHub stars](https://img.shields.io/github/stars/nshalabi/ai-threat-modeler?style=social)
 [![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github)](https://github.com/sponsors/nshalabi)
 
-AI Threat Modeler is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations. Findings map to established frameworks including MITRE ATLAS, OWASP LLM/GenAI guidance, NIST AI RMF, and NIST CSF. The tool is fully local — the desktop app is offline-only, and the web app runs entirely in your browser with no data leaving the page.
+AI Threat Modeler is a visual threat modeling tool specialized for AI systems, LLM applications, RAG architectures, agents, and model pipelines. It allows security professionals to model AI systems with components, trust boundaries, and data flows, then run automated analysis to identify threats, weaknesses, and recommended mitigations — including **multi-hop attack paths** that compose across components. Findings carry a transparent rule-level derivation and map to source-verified framework references: MITRE ATLAS, OWASP LLM Top 10 (2025), OWASP ML Security Top 10, NIST AI RMF, and NIST CSF 2.0. The tool is fully local — the desktop app is offline-only, and the web app runs entirely in your browser with no data leaving the page.
 
 **Try it now in your browser:** [nshalabi.github.io/ai-threat-modeler](https://nshalabi.github.io/ai-threat-modeler/) — load a bundled sample with one click, no install required. For full features and persistent local files, [download the desktop app](https://github.com/nshalabi/ai-threat-modeler/releases/latest).
 
@@ -20,7 +20,10 @@ AI Threat Modeler is a visual threat modeling tool specialized for AI systems, L
 - 40+ AI-specific and standard component types
 - Trust boundaries and data flow metadata
 - Deterministic rule-based analysis engine
-- Transparent findings with rule IDs and rationale
+- **Multi-hop attack-path detection** — chained attacks that compose across components ([how it works](docs/ATTACK-PATHS.md))
+- **Attack-Paths view** — visualize detected chains and probe any asset for control-free paths from untrusted sources
+- Transparent findings with rule IDs and a per-condition **"Why this fired"** derivation
+- Source-verified framework mapping: MITRE ATLAS, OWASP LLM Top 10 (2025), OWASP ML Top 10, NIST AI RMF, NIST CSF 2.0
 - Extensible knowledge packs for frameworks and threats
 - Available as a web app (no install) and as a desktop app (Windows / macOS / Linux)
 - Local-first — desktop runs fully offline, web runs entirely client-side
@@ -74,8 +77,8 @@ The application is organized into four subsystems:
 
 - **Modeling Engine** -- Canvas, node library, and project persistence
 - **Knowledge Engine** -- Knowledge packs, framework mappings, and lookup
-- **Analysis Engine** -- Rules, evaluator, and findings
-- **Reporting Layer** -- Findings view and export
+- **Analysis Engine** -- Single-component and multi-hop path rules, evaluator, and findings
+- **Reporting Layer** -- Findings view, Attack-Paths view, and export
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full architecture document.
 
@@ -87,9 +90,9 @@ See [docs/CONTRIBUTING.md](docs/CONTRIBUTING.md) for the contributor guide.
 
 ## Knowledge Packs
 
-AI Threat Modeler uses structured JSON knowledge packs to define threats, controls, mitigations, and analysis rules. Packs can reference external frameworks like MITRE ATLAS and OWASP LLM Top 10. You can extend the built-in packs or create new ones for additional frameworks.
+AI Threat Modeler uses structured JSON knowledge packs to define threats, controls, mitigations, and analysis rules — both single-component rules and multi-hop `pathPattern` rules. References are source-verified against MITRE ATLAS, OWASP LLM Top 10 (2025), OWASP ML Top 10, NIST AI RMF, and NIST CSF 2.0. You can extend the built-in packs or create new ones.
 
-See [docs/KNOWLEDGE-PACKS.md](docs/KNOWLEDGE-PACKS.md) for the full guide.
+See [docs/KNOWLEDGE-PACKS.md](docs/KNOWLEDGE-PACKS.md) for the authoring guide and [docs/ATTACK-PATHS.md](docs/ATTACK-PATHS.md) for how attack-path detection is evaluated.
 
 ## Support the Project
 
@@ -111,7 +114,8 @@ Copyright &copy; 2026 Nader Shalabi.
 
 This project references content and taxonomy from the following frameworks:
 
-- [MITRE ATLAS](https://atlas.mitre.org/) -- Adversarial Threat Landscape for AI Systems
-- [OWASP](https://owasp.org/) -- LLM Top 10 and GenAI guidance
-- [NIST AI RMF](https://www.nist.gov/artificial-intelligence/ai-risk-management-framework) -- AI Risk Management Framework
-- [NIST CSF](https://www.nist.gov/cyberframework) -- Cybersecurity Framework
+- [MITRE ATLAS](https://atlas.mitre.org/) -- Adversarial Threat Landscape for AI Systems (verified against `mitre-atlas/atlas-data`)
+- [OWASP LLM Top 10 (2025)](https://genai.owasp.org/) -- Top 10 risks for LLM applications
+- [OWASP Machine Learning Security Top 10](https://owasp.org/www-project-machine-learning-security-top-10/) -- classical-ML security risks
+- [NIST AI RMF](https://www.nist.gov/itl/ai-risk-management-framework) -- AI Risk Management Framework 1.0 (verified against the AI RMF Core)
+- [NIST CSF 2.0](https://www.nist.gov/cyberframework) -- Cybersecurity Framework 2.0 (verified against the NIST CPRT export)

@@ -1,12 +1,20 @@
 # Knowledge Packs
 
+> This guide reflects the **concrete, shipped** schema and engine behavior.
+> An earlier version of this document described a forward-looking design
+> (e.g. a `$ref` condition value, `sourceNode`/`targetNode` targets,
+> `greaterThan`/`lessThan` operators) that the implementation ultimately did
+> not adopt. It has been rewritten so every example here works as written
+> against the current engine.
+
 ## What Is a Knowledge Pack
 
-A knowledge pack is a structured JSON collection of threats, weaknesses, controls, mitigations, and analysis rules. The tool loads these packs at startup and uses them to identify issues in AI system models during analysis. Packs can reference external security frameworks like MITRE ATLAS, OWASP LLM Top 10, and NIST AI RMF.
+A knowledge pack is a structured JSON collection of threats, controls,
+mitigations, and analysis rules. The tool loads these at startup and uses them
+to identify issues in AI system models during analysis. Packs can reference
+external security frameworks (MITRE ATLAS, OWASP, NIST).
 
 ## Pack Structure
-
-A knowledge pack is a directory containing the following files:
 
 ```
 my-pack/
@@ -17,6 +25,9 @@ my-pack/
   rules.json         # Array of AnalysisRule objects
 ```
 
+`weaknesses` are also part of the pack schema but are optional; the built-in
+base pack ships an empty set.
+
 ### pack.json
 
 ```json
@@ -24,7 +35,8 @@ my-pack/
   "id": "my-pack",
   "name": "My Knowledge Pack",
   "version": "1.0.0",
-  "description": "Threats and rules for a specific domain"
+  "description": "Threats and rules for a specific domain",
+  "author": "Your Name"
 }
 ```
 
@@ -37,8 +49,8 @@ my-pack/
 | `id` | string | Unique identifier (convention: `THR-xxx`) |
 | `name` | string | Short descriptive name |
 | `description` | string | Detailed explanation of the threat |
-| `category` | string | Grouping category (e.g., "prompt-injection", "data-poisoning") |
-| `severity` | string | Default severity: `critical`, `high`, `medium`, or `low` |
+| `category` | string | Grouping category (e.g. `prompt-security`, `data-integrity`) |
+| `severity` | string | `critical`, `high`, `medium`, `low`, or `informational` |
 | `frameworkRefs` | FrameworkReference[] | Links to external framework entries |
 | `mitigationIds` | string[] | IDs of mitigations that address this threat |
 
@@ -49,7 +61,7 @@ my-pack/
 | `id` | string | Unique identifier (convention: `CTRL-xxx`) |
 | `name` | string | Short descriptive name |
 | `description` | string | What the control does and how it reduces risk |
-| `category` | string | Grouping category |
+| `category` | string | Grouping category (e.g. `preventive`, `detective`) |
 | `frameworkRefs` | FrameworkReference[] | Links to external framework entries |
 
 ### Mitigation
@@ -66,10 +78,10 @@ my-pack/
 
 | Field | Type | Description |
 |---|---|---|
-| `framework` | string | Framework identifier (see Supported Frameworks below) |
-| `id` | string | The framework's own identifier (e.g., `AML.T0051`) |
+| `framework` | string | Framework name — use a canonical string (see Supported Frameworks) |
+| `id` | string | The framework's own identifier (e.g. `AML.T0051`) |
 | `name` | string | Human-readable name from the framework |
-| `url` | string? | Optional URL to the framework documentation page |
+| `url` | string? | Optional URL to the framework page |
 
 ### AnalysisRule
 
@@ -78,167 +90,159 @@ my-pack/
 | `id` | string | Unique identifier (convention: `RULE-xxx`) |
 | `name` | string | Short descriptive name |
 | `description` | string | What the rule detects |
-| `severity` | string | Finding severity when the rule fires: `critical`, `high`, `medium`, or `low` |
+| `severity` | string | `critical`, `high`, `medium`, `low`, or `informational` |
 | `category` | string | Rule category for grouping |
-| `conditions` | Condition[] | Array of conditions to evaluate (see Writing Rules) |
-| `logicOperator` | string | How to combine conditions: `AND` (all must match) or `OR` (at least one) |
-| `appliesTo` | object? | Optional filter restricting which nodes or flows the rule targets |
-| `threatIds` | string[] | Threat IDs to reference in generated findings |
-| `mitigationIds` | string[] | Mitigation IDs to recommend in generated findings |
-| `recommendation` | string | Human-readable recommendation text included in the finding |
+| `conditions` | RuleCondition[]? | Single-component rule logic |
+| `logicOperator` | string? | `and` (all conditions) or `or` (any). Default `and` |
+| `pathPattern` | PathPattern? | Multi-hop / chained-attack matcher |
+| `appliesTo` | object? | Optional `{ nodeTypes?, boundaryTypes?, dataTypes?, dataClassifications? }` filter |
+| `threatIds` | string[] | Threat IDs referenced in generated findings |
+| `mitigationIds` | string[] | Mitigation IDs recommended in generated findings |
+| `recommendation` | string | Recommendation text included in the finding |
 
-## Writing Rules
+A rule uses **either** `conditions` **or** `pathPattern` — never both.
 
-Rules use a declarative condition system. Each condition specifies a target, a field path, an operator, and an expected value.
+## Writing Single-Component Rules
 
-### Condition Fields
+### RuleCondition
 
 | Field | Type | Description |
 |---|---|---|
-| `target` | string | What to inspect: `node`, `flow`, `sourceNode`, `targetNode`, `trustBoundary` |
-| `field` | string | Dot-notation path to a property (e.g., `type`, `properties.isExternal`) |
-| `operator` | string | Comparison: `equals`, `notEquals`, `contains`, `notContains`, `exists`, `notExists`, `in`, `notIn`, `greaterThan`, `lessThan` |
-| `value` | any | The expected value to compare against |
+| `target` | string | What to inspect: `node`, `flow`, `boundary`, or `model` |
+| `field` | string | Dot-notation path on the target (e.g. `type`, `properties.encrypted`, `properties.hasRBAC`) |
+| `operator` | string | `equals`, `not-equals`, `contains`, `not-contains`, `exists`, `not-exists`, `in`, `not-in` |
+| `value` | any? | Expected value to compare against |
+
+Notes:
+- Flow-targeted rules also expose the flow's destination node as `node`, so a
+  flow rule can constrain the target component's type/properties.
+- `model` targets the whole project (for project-wide checks).
+- "Absence of a control" is expressed as `not-equals true` on a boolean
+  property (an unset property is treated as not-present). Example:
+  `properties.hasRBAC not-equals true`.
+- Security node properties available include `internetFacing`,
+  `hasInputValidation`, `hasOutputFiltering`, `hasRBAC`, `hasApprovalFlow`,
+  `hasLogging`, `hasSystemPromptProtection`, `hasGroundingChecks`,
+  `isExternal`, `dataClassification`.
 
 ### Example 1: Unencrypted data flow crossing a trust boundary
 
-This rule fires when a data flow connects nodes in different trust boundaries and the flow is not encrypted.
-
 ```json
 {
-  "id": "RULE-010",
-  "name": "Unencrypted cross-boundary data flow",
-  "description": "Detects data flows that cross trust boundaries without encryption",
+  "id": "RULE-009",
+  "name": "Unencrypted data flow crossing trust boundary",
+  "description": "A data flow that crosses a trust boundary is not encrypted, exposing data to interception.",
   "severity": "high",
-  "category": "data-security",
+  "category": "data-exposure",
   "conditions": [
-    {
-      "target": "sourceNode",
-      "field": "trustBoundaryId",
-      "operator": "notEquals",
-      "value": { "$ref": "targetNode.trustBoundaryId" }
-    },
-    {
-      "target": "flow",
-      "field": "properties.encrypted",
-      "operator": "equals",
-      "value": false
-    }
+    { "target": "flow", "field": "properties.encrypted", "operator": "equals", "value": false },
+    { "target": "flow", "field": "properties.crossesTrustBoundary", "operator": "equals", "value": true }
   ],
-  "logicOperator": "AND",
-  "appliesTo": { "type": "dataFlow" },
-  "threatIds": ["THR-020"],
-  "mitigationIds": ["MIT-015"],
-  "recommendation": "Enable encryption (TLS or application-layer) for data flows that cross trust boundaries."
+  "logicOperator": "and",
+  "threatIds": ["THR-005"],
+  "mitigationIds": ["MIT-009"],
+  "recommendation": "Encrypt all data flows crossing trust boundaries using TLS 1.2+."
 }
 ```
 
-The first condition uses a `$ref` to dynamically compare the source node's trust boundary against the target node's trust boundary. The second condition checks that the flow's `encrypted` property is `false`. Both must match (AND).
-
-### Example 2: External LLM without access control
-
-This rule fires for any LLM node that is marked as external but lacks authentication on its incoming flows.
+### Example 2: Agent/tool connector without RBAC
 
 ```json
 {
-  "id": "RULE-025",
-  "name": "External LLM without access control",
-  "description": "Detects external LLM components that receive data without authentication",
-  "severity": "medium",
-  "category": "access-control",
+  "id": "RULE-003",
+  "name": "AI agent or tool connector without RBAC",
+  "description": "An AI agent or tool connector lacks role-based access control.",
+  "severity": "high",
+  "category": "agent-security",
   "conditions": [
-    {
-      "target": "node",
-      "field": "type",
-      "operator": "equals",
-      "value": "llm"
-    },
-    {
-      "target": "node",
-      "field": "properties.isExternal",
-      "operator": "equals",
-      "value": true
-    },
-    {
-      "target": "node",
-      "field": "properties.authentication",
-      "operator": "notExists",
-      "value": null
-    }
+    { "target": "node", "field": "type", "operator": "in", "value": ["ai-agent", "tool-connector"] },
+    { "target": "node", "field": "properties.hasRBAC", "operator": "not-equals", "value": true }
   ],
-  "logicOperator": "AND",
-  "appliesTo": { "type": "node", "nodeTypes": ["llm"] },
-  "threatIds": ["THR-030"],
-  "mitigationIds": ["MIT-022"],
-  "recommendation": "Implement API key or OAuth authentication for all external LLM endpoints."
+  "logicOperator": "and",
+  "appliesTo": { "nodeTypes": ["ai-agent", "tool-connector"] },
+  "threatIds": ["THR-006", "THR-007"],
+  "mitigationIds": ["MIT-003"],
+  "recommendation": "Implement RBAC and least-privilege on all agent tool connectors."
 }
 ```
 
-### Example 3: User input directly connected to prompt construction
+## Writing Multi-Hop (Attack-Path) Rules
 
-This rule detects when a user-facing input component connects directly to a prompt template or LLM without an intermediate sanitization step.
+A rule with a `pathPattern` matches a **path through the component graph** —
+chained attacks that no single-component rule can express. Full semantics are
+in [ATTACK-PATHS.md](ATTACK-PATHS.md).
+
+### PathPattern
+
+| Field | Type | Description |
+|---|---|---|
+| `from` | RuleCondition[] | Node conditions for the untrusted source |
+| `to` | RuleCondition[] | Node conditions for the target / sink |
+| `without` | RuleCondition[]? | Node conditions for a control that breaks the chain if present on the path |
+| `edge` | RuleCondition[]? | Flow conditions every traversed flow must satisfy |
+| `maxHops` | number? | Path length bound (default 12) |
+
+Evaluation is existential over simple paths: the rule fires when at least one
+control-free path from a `from` node to a `to` node exists. All conditions
+within a group are ANDed.
+
+### Example 3: Indirect prompt-injection chain
 
 ```json
 {
-  "id": "RULE-040",
-  "name": "Direct user input to prompt",
-  "description": "Detects user input flowing directly to prompt construction without sanitization",
+  "id": "RULE-026",
+  "name": "Indirect prompt injection chain",
+  "description": "Untrusted external content can reach a model along a path with no guardrail or moderation node.",
   "severity": "critical",
-  "category": "prompt-injection",
-  "conditions": [
-    {
-      "target": "sourceNode",
-      "field": "type",
-      "operator": "in",
-      "value": ["user-input", "web-interface", "api-endpoint"]
-    },
-    {
-      "target": "targetNode",
-      "field": "type",
-      "operator": "in",
-      "value": ["llm", "prompt-template"]
-    }
-  ],
-  "logicOperator": "AND",
-  "appliesTo": { "type": "dataFlow" },
-  "threatIds": ["THR-001"],
-  "mitigationIds": ["MIT-001", "MIT-002"],
-  "recommendation": "Add input validation and sanitization between user input and prompt construction. Consider implementing a prompt firewall."
+  "category": "prompt-security",
+  "pathPattern": {
+    "from": [{ "target": "node", "field": "type", "operator": "in", "value": ["external-knowledge-source", "document-ingestion-pipeline", "dataset-source"] }],
+    "to": [{ "target": "node", "field": "type", "operator": "in", "value": ["llm", "hosted-model-api", "self-hosted-model"] }],
+    "without": [{ "target": "node", "field": "type", "operator": "in", "value": ["guardrail", "moderation-layer"] }],
+    "maxHops": 12
+  },
+  "threatIds": ["THR-002"],
+  "mitigationIds": ["MIT-001", "MIT-010"],
+  "recommendation": "Insert a guardrail or moderation node between external content sources and the model."
 }
 ```
 
 ## Supported Frameworks
 
-Use these identifiers in the `framework` field of FrameworkReference objects:
+Use these canonical strings in the `framework` field. Identifiers are
+source-verified against the frameworks' authoritative data.
 
-| Identifier | Framework | Example ID Format |
+| `framework` string | Framework | Example `id` |
 |---|---|---|
-| `MITRE_ATLAS` | MITRE ATLAS (Adversarial Threat Landscape for AI Systems) | `AML.T0051` |
-| `OWASP_LLM_TOP10` | OWASP Top 10 for LLM Applications | `LLM01` |
-| `OWASP_GENAI` | OWASP GenAI Security Guidance | varies |
-| `NIST_AI_RMF` | NIST AI Risk Management Framework | `MAP 1.1` |
-| `NIST_CSF` | NIST Cybersecurity Framework | `PR.DS-1` |
+| `MITRE ATLAS` | Adversarial Threat Landscape for AI Systems | `AML.T0051` |
+| `OWASP LLM Top 10` | OWASP Top 10 for LLM Applications (2025) | `LLM01:2025` |
+| `OWASP ML Top 10` | OWASP Machine Learning Security Top 10 (2023) | `ML02:2023` |
+| `NIST AI RMF` | NIST AI Risk Management Framework 1.0 | `MEASURE 2.7` |
+| `NIST CSF` | NIST Cybersecurity Framework 2.0 | `PR.DS-01` |
 
-When creating framework references, include the `url` field where possible to link directly to the relevant page.
+Include the `url` field where possible to deep-link the framework page.
 
 ## ID Conventions
-
-Use the following prefixes to keep identifiers consistent across packs:
 
 | Prefix | Entity | Example |
 |---|---|---|
 | `THR-` | Threat | `THR-001` |
 | `CTRL-` | Control | `CTRL-010` |
 | `MIT-` | Mitigation | `MIT-005` |
-| `RULE-` | Analysis Rule | `RULE-040` |
+| `RULE-` | Analysis Rule | `RULE-026` |
 
-Use three-digit zero-padded numbers. If a pack is domain-specific, you can add a namespace after the prefix (e.g., `THR-RAG-001` for RAG-specific threats).
+Use three-digit zero-padded numbers. The built-in base pack currently uses
+`THR-001`..`THR-023`, `CTRL-001`..`CTRL-013`, `MIT-001`..`MIT-016`, and
+`RULE-001`..`RULE-030` (RULE-026..030 are multi-hop). For a domain-specific
+pack, choose a non-overlapping range or add a namespace
+(e.g. `THR-RAG-001`).
 
 ## Testing Your Pack
 
-1. Place your pack directory inside `src/knowledge/packs/`
-2. Start the app with `npm run dev`
-3. Create a sample model that includes the component types your rules target
-4. Set the node and flow properties that your conditions check
-5. Run analysis and verify that your rules produce the expected findings
-6. Check that findings include the correct threat references, mitigations, and framework links
+1. Place your pack directory inside `src/knowledge/packs/`.
+2. Start the app (`npm run dev`) or web build (`npm run dev:web`).
+3. Build a model with the component types and properties your rules target.
+4. Run **Analyze** and confirm rules fire as expected.
+5. Expand a finding to check the **Why this fired** derivation (single
+   component) or **Attack Path** chain (multi-hop), and verify framework
+   references resolve.
