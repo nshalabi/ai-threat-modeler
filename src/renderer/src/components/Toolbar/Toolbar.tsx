@@ -174,11 +174,11 @@ export function Toolbar(): JSX.Element {
 
         <ToolbarButton
           onClick={handleHighRiskPath}
-          title="Highlight High-Risk Path"
+          title="Highlight High-Risk Components"
           active={highlightActive}
           disabled={!hasFindings}
         >
-          {highlightActive ? 'Clear Highlight' : 'High-Risk Path'}
+          {highlightActive ? 'Clear Highlight' : 'Highlight High-Risk Components'}
         </ToolbarButton>
 
         <ToolbarButton
