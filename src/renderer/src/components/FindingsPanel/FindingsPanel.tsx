@@ -181,6 +181,22 @@ function FindingCard({
             <p className="text-xs text-[#94a3b8] leading-relaxed">{finding.rationale}</p>
           </DetailSection>
 
+          {finding.derivation.path && (
+            <DetailSection
+              label={`Attack Path (${finding.derivation.path.vulnerableTargetCount} vulnerable target${
+                finding.derivation.path.vulnerableTargetCount === 1 ? '' : 's'
+              })`}
+            >
+              <div className="text-[11px] text-[#cbd5e1] leading-relaxed break-words">
+                {nodeLabels.join('  →  ')}
+              </div>
+              <div className="text-[10px] text-[#64748b] mt-1">
+                No control on this path:{' '}
+                <code className="text-[#94a3b8]">{finding.derivation.path.missingControl}</code>
+              </div>
+            </DetailSection>
+          )}
+
           {finding.derivation.conditions.length > 0 && (
             <DetailSection
               label={`Why this fired (${

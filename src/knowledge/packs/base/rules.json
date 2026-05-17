@@ -402,5 +402,86 @@
     "threatIds": ["THR-023"],
     "mitigationIds": ["MIT-003", "MIT-004", "MIT-011"],
     "recommendation": "Scope tool connectors with least-privilege RBAC, log all tool invocations, and monitor for anomalous egress destinations or data volumes."
+  },
+  {
+    "id": "RULE-026",
+    "name": "Indirect prompt injection chain",
+    "description": "Untrusted external content can reach a model along a path with no guardrail or moderation node, enabling indirect prompt injection.",
+    "severity": "critical",
+    "category": "prompt-security",
+    "pathPattern": {
+      "from": [{ "target": "node", "field": "type", "operator": "in", "value": ["external-knowledge-source", "document-ingestion-pipeline", "dataset-source"] }],
+      "to": [{ "target": "node", "field": "type", "operator": "in", "value": ["llm", "hosted-model-api", "self-hosted-model"] }],
+      "without": [{ "target": "node", "field": "type", "operator": "in", "value": ["guardrail", "moderation-layer"] }],
+      "maxHops": 12
+    },
+    "threatIds": ["THR-002"],
+    "mitigationIds": ["MIT-001", "MIT-010"],
+    "recommendation": "Insert a guardrail or moderation node between external content sources and the model. Sanitize and validate retrieved content before it enters the prompt context."
+  },
+  {
+    "id": "RULE-027",
+    "name": "Unencrypted sensitive-data path to external model provider",
+    "description": "Confidential or restricted data can travel entirely over unencrypted flows to an external model API with no sanitizing control on the path.",
+    "severity": "high",
+    "category": "data-exposure",
+    "pathPattern": {
+      "from": [{ "target": "node", "field": "properties.dataClassification", "operator": "in", "value": ["confidential", "restricted"] }],
+      "to": [{ "target": "node", "field": "type", "operator": "equals", "value": "hosted-model-api" }],
+      "without": [{ "target": "node", "field": "type", "operator": "in", "value": ["guardrail", "moderation-layer", "output-post-processor"] }],
+      "edge": [{ "target": "flow", "field": "properties.encrypted", "operator": "equals", "value": false }],
+      "maxHops": 12
+    },
+    "threatIds": ["THR-005"],
+    "mitigationIds": ["MIT-006", "MIT-009"],
+    "recommendation": "Encrypt all flows carrying sensitive data, classify and mask data before it leaves the trust boundary, and route it through a sanitizing control before any external model provider."
+  },
+  {
+    "id": "RULE-028",
+    "name": "Context-poisoning to consequential action chain",
+    "description": "An untrusted source can reach an agent tool connector along a path with no human approval or guardrail, allowing poisoned context to drive a consequential action.",
+    "severity": "high",
+    "category": "agent-security",
+    "pathPattern": {
+      "from": [{ "target": "node", "field": "type", "operator": "in", "value": ["external-actor", "prompt-input", "external-knowledge-source"] }],
+      "to": [{ "target": "node", "field": "type", "operator": "in", "value": ["tool-connector", "plugin"] }],
+      "without": [{ "target": "node", "field": "type", "operator": "in", "value": ["human-in-the-loop", "guardrail", "moderation-layer"] }],
+      "maxHops": 12
+    },
+    "threatIds": ["THR-022"],
+    "mitigationIds": ["MIT-001", "MIT-004"],
+    "recommendation": "Require a human-in-the-loop approval or guardrail between untrusted inputs and any tool connector that performs consequential actions."
+  },
+  {
+    "id": "RULE-029",
+    "name": "Poisoned training-data chain",
+    "description": "External dataset content can reach a training or fine-tuning component along a path with no validation or evaluation node, enabling training-data poisoning.",
+    "severity": "high",
+    "category": "data-integrity",
+    "pathPattern": {
+      "from": [{ "target": "node", "field": "type", "operator": "in", "value": ["dataset-source", "external-knowledge-source"] }],
+      "to": [{ "target": "node", "field": "type", "operator": "in", "value": ["fine-tuning-pipeline", "training-data-repo", "model-registry"] }],
+      "without": [{ "target": "node", "field": "type", "operator": "in", "value": ["evaluation-engine", "guardrail"] }],
+      "maxHops": 12
+    },
+    "threatIds": ["THR-003"],
+    "mitigationIds": ["MIT-007", "MIT-012"],
+    "recommendation": "Validate and evaluate external dataset content before it reaches training or fine-tuning. Insert a data validation or evaluation node on the ingestion path."
+  },
+  {
+    "id": "RULE-030",
+    "name": "Exfiltration-via-agent-tool chain",
+    "description": "An untrusted source can reach a tool connector along a path with no approval, guardrail, or monitoring node, allowing data exfiltration through the agent's tool access.",
+    "severity": "high",
+    "category": "agent-security",
+    "pathPattern": {
+      "from": [{ "target": "node", "field": "type", "operator": "in", "value": ["external-actor", "prompt-input"] }],
+      "to": [{ "target": "node", "field": "type", "operator": "in", "value": ["tool-connector", "plugin"] }],
+      "without": [{ "target": "node", "field": "type", "operator": "in", "value": ["human-in-the-loop", "guardrail", "logging-monitoring"] }],
+      "maxHops": 12
+    },
+    "threatIds": ["THR-023"],
+    "mitigationIds": ["MIT-003", "MIT-011"],
+    "recommendation": "Place approval, guardrail, or logging/monitoring controls between untrusted inputs and tool connectors so tool-based exfiltration is restricted and detectable."
   }
 ]

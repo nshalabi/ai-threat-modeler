@@ -10,14 +10,38 @@ export interface RuleCondition {
   value?: unknown
 }
 
+/**
+ * A multi-hop path pattern. Matches a path through the component graph
+ * (nodes connected by flows). Used to express chained / compositional
+ * attacks that no single-component rule can capture.
+ *
+ * Semantics (existential): the rule fires when there exists at least one
+ * simple path from a node matching `from` to a node matching `to`, where
+ * NO node on the path matches `without` (the absence-of-control operator)
+ * and every traversed flow matches `edge`, within `maxHops`.
+ *
+ * `from` / `to` / `without` conditions are evaluated against nodes; `edge`
+ * conditions against flows. Traversal follows flow direction.
+ */
+export interface PathPattern {
+  from: RuleCondition[]
+  to: RuleCondition[]
+  without?: RuleCondition[]
+  edge?: RuleCondition[]
+  maxHops?: number
+}
+
 export interface AnalysisRule {
   id: string
   name: string
   description: string
   severity: Severity
   category: string
-  conditions: RuleCondition[]
-  logicOperator: 'and' | 'or'
+  // Single-component rules use `conditions`; multi-hop rules use
+  // `pathPattern`. Exactly one is set (mutually exclusive in v1).
+  conditions?: RuleCondition[]
+  logicOperator?: 'and' | 'or'
+  pathPattern?: PathPattern
   // Which node/flow types this rule applies to (empty = all)
   appliesTo?: {
     nodeTypes?: ComponentType[]
@@ -47,9 +71,26 @@ export interface ConditionTrace {
  * The structured derivation of a finding: which rule conditions were checked,
  * what values triggered them, and how they were combined.
  */
+/**
+ * For multi-hop findings: the matched attack path and how many distinct
+ * vulnerable targets the rule found.
+ */
+export interface PathDerivation {
+  /** Ordered node ids from source to target. */
+  nodeIds: string[]
+  /** Ordered flow ids traversed (length = nodeIds.length - 1). */
+  flowIds: string[]
+  /** Node ids that the `without` (control) clause looked for. */
+  missingControl: string
+  /** How many vulnerable target nodes this rule found in the model. */
+  vulnerableTargetCount: number
+}
+
 export interface FindingDerivation {
   logicOperator: 'and' | 'or'
   conditions: ConditionTrace[]
+  /** Present only for multi-hop (path-pattern) findings. */
+  path?: PathDerivation
 }
 
 export interface Finding {

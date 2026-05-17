@@ -113,12 +113,129 @@ function buildRationale(rule: AnalysisRule, entityLabels: string[]): string {
   return `Rule "${rule.name}" (${rule.id}) triggered on: ${affected}. ${rule.description}`
 }
 
-export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): EvaluationMatch[] {
-  const matches: EvaluationMatch[] = []
+const DEFAULT_MAX_HOPS = 12
 
-  const hasNodeConditions = rule.conditions.some((c) => c.target === 'node')
-  const hasFlowConditions = rule.conditions.some((c) => c.target === 'flow')
-  const hasBoundaryConditions = rule.conditions.some((c) => c.target === 'boundary')
+/** All conditions must pass for the object to "match" (AND within a group). */
+function matchesAll(
+  conditions: RuleCondition[],
+  contexts: Record<string, Record<string, unknown> | undefined>
+): boolean {
+  return conditions.every((c) => {
+    const obj = contexts[c.target]
+    if (!obj) return false
+    return evaluateCondition(c, obj).passed
+  })
+}
+
+/**
+ * Multi-hop evaluation. Existential over simple paths: emit one match per
+ * vulnerable target node, evidenced by the shortest control-free path to it.
+ */
+function evaluatePathRule(
+  rule: AnalysisRule,
+  project: ThreatModelProject
+): EvaluationMatch[] {
+  const pp = rule.pathPattern
+  if (!pp) return []
+
+  const maxHops = pp.maxHops ?? DEFAULT_MAX_HOPS
+  const nodeMap = new Map(project.nodes.map((n) => [n.id, n]))
+  const model = project as unknown as Record<string, unknown>
+
+  const nodeCtx = (id: string): Record<string, Record<string, unknown>> => ({
+    node: nodeMap.get(id) as unknown as Record<string, unknown>,
+    model
+  })
+  const isFrom = (id: string): boolean => matchesAll(pp.from, nodeCtx(id))
+  const isTo = (id: string): boolean => matchesAll(pp.to, nodeCtx(id))
+  const isControl = (id: string): boolean =>
+    !!pp.without && pp.without.length > 0 && matchesAll(pp.without, nodeCtx(id))
+
+  // Directed adjacency, only along flows that satisfy the edge predicate.
+  const adj = new Map<string, Array<{ flowId: string; to: string }>>()
+  for (const f of project.flows) {
+    if (pp.edge && pp.edge.length > 0) {
+      const ok = matchesAll(pp.edge, {
+        flow: f as unknown as Record<string, unknown>,
+        model
+      })
+      if (!ok) continue
+    }
+    if (!adj.has(f.source)) adj.set(f.source, [])
+    adj.get(f.source)!.push({ flowId: f.id, to: f.target })
+  }
+
+  const fromNodes = project.nodes.filter((n) => isFrom(n.id) && !isControl(n.id))
+  if (fromNodes.length === 0) return []
+
+  // Multi-source BFS → shortest control-free path to each reachable target.
+  interface QItem { id: string; nodes: string[]; flows: string[] }
+  const queue: QItem[] = fromNodes.map((n) => ({ id: n.id, nodes: [n.id], flows: [] }))
+  const visited = new Set<string>(fromNodes.map((n) => n.id))
+  const targetPaths = new Map<string, QItem>() // toNodeId -> shortest path
+
+  while (queue.length > 0) {
+    const cur = queue.shift()!
+    if (cur.flows.length >= maxHops) continue
+    for (const edge of adj.get(cur.id) ?? []) {
+      if (visited.has(edge.to)) continue
+      if (isControl(edge.to)) continue // control breaks the chain
+      const next: QItem = {
+        id: edge.to,
+        nodes: [...cur.nodes, edge.to],
+        flows: [...cur.flows, edge.flowId]
+      }
+      // A real path needs >=1 edge; record first (shortest) time we reach a target.
+      if (isTo(edge.to) && !targetPaths.has(edge.to)) {
+        targetPaths.set(edge.to, next)
+      }
+      visited.add(edge.to)
+      queue.push(next)
+    }
+  }
+
+  if (targetPaths.size === 0) return []
+
+  const controlDesc =
+    pp.without && pp.without.length > 0
+      ? pp.without.map((c) => `${c.target}.${c.field} ${c.operator} ${String(c.value ?? '')}`.trim()).join(' / ')
+      : 'none'
+
+  const matches: EvaluationMatch[] = []
+  for (const [, path] of targetPaths) {
+    const labels = path.nodes.map((id) => nodeMap.get(id)?.label ?? id)
+    matches.push({
+      nodeIds: path.nodes,
+      flowIds: path.flows,
+      boundaryIds: [],
+      rationale: `Rule "${rule.name}" (${rule.id}) found an attack path: ${labels.join(' -> ')}. No control node (${controlDesc}) on this path. ${rule.description}`,
+      derivation: {
+        logicOperator: 'and',
+        conditions: [],
+        path: {
+          nodeIds: path.nodes,
+          flowIds: path.flows,
+          missingControl: controlDesc,
+          vulnerableTargetCount: targetPaths.size
+        }
+      }
+    })
+  }
+  return matches
+}
+
+export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): EvaluationMatch[] {
+  if (rule.pathPattern) {
+    return evaluatePathRule(rule, project)
+  }
+
+  const matches: EvaluationMatch[] = []
+  const conditions = rule.conditions ?? []
+  const logicOperator = rule.logicOperator ?? 'and'
+
+  const hasNodeConditions = conditions.some((c) => c.target === 'node')
+  const hasFlowConditions = conditions.some((c) => c.target === 'flow')
+  const hasBoundaryConditions = conditions.some((c) => c.target === 'boundary')
 
   // Node-targeted rules: check each applicable node
   if (hasNodeConditions && !hasFlowConditions) {
@@ -132,14 +249,14 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
         model: project as unknown as Record<string, unknown>
       }
 
-      const result = evaluateConditions(rule.conditions, rule.logicOperator, context)
+      const result = evaluateConditions(conditions, logicOperator, context)
       if (result.passed) {
         matches.push({
           nodeIds: [node.id],
           flowIds: [],
           boundaryIds: [],
           rationale: buildRationale(rule, [node.label]),
-          derivation: { logicOperator: rule.logicOperator, conditions: result.traces }
+          derivation: { logicOperator, conditions: result.traces }
         })
       }
     }
@@ -170,7 +287,7 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
         context.node = targetNode as unknown as Record<string, unknown>
       }
 
-      const result = evaluateConditions(rule.conditions, rule.logicOperator, context)
+      const result = evaluateConditions(conditions, logicOperator, context)
       if (result.passed) {
         const affectedNodes: string[] = []
         const labels: string[] = [flow.label]
@@ -188,7 +305,7 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
           flowIds: [flow.id],
           boundaryIds: [],
           rationale: buildRationale(rule, labels),
-          derivation: { logicOperator: rule.logicOperator, conditions: result.traces }
+          derivation: { logicOperator, conditions: result.traces }
         })
       }
     }
@@ -209,14 +326,14 @@ export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): E
         model: project as unknown as Record<string, unknown>
       }
 
-      const result = evaluateConditions(rule.conditions, rule.logicOperator, context)
+      const result = evaluateConditions(conditions, logicOperator, context)
       if (result.passed) {
         matches.push({
           nodeIds: boundary.nodeIds,
           flowIds: [],
           boundaryIds: [boundary.id],
           rationale: buildRationale(rule, [boundary.label]),
-          derivation: { logicOperator: rule.logicOperator, conditions: result.traces }
+          derivation: { logicOperator, conditions: result.traces }
         })
       }
     }
