@@ -20,6 +20,15 @@ function ComponentNodeInner({ id, data, selected }: NodeProps): JSX.Element {
 
   const isHighlighted = useProjectStore((s) => s.highlightedNodeIds.includes(id))
   const severity = useProjectStore((s) => s.highlightSeverity)
+  const pathFocus = useProjectStore((s) => s.pathFocus)
+  const pathIndex = useProjectStore((s) => s.orderedPathNodeIds.indexOf(id))
+  const pathLength = useProjectStore((s) => s.orderedPathNodeIds.length)
+
+  const isOnPath = pathIndex >= 0
+  const isSource = isOnPath && pathIndex === 0
+  const isTarget = isOnPath && pathIndex === pathLength - 1
+  // Spotlight: when a path is focused, dim everything not on it.
+  const dimmed = pathFocus && !isOnPath
 
   const glowStyle =
     isHighlighted && severity
@@ -31,9 +40,10 @@ function ComponentNodeInner({ id, data, selected }: NodeProps): JSX.Element {
 
   return (
     <div
-      style={glowStyle}
+      style={{ ...glowStyle, opacity: dimmed ? 0.25 : 1 }}
       className={`
         relative min-w-[160px] rounded-lg border-2 transition-all duration-200
+        ${dimmed ? 'grayscale' : ''}
         ${selected
           ? 'border-[#6366f1] shadow-lg shadow-[#6366f1]/20'
           : isHighlighted
@@ -45,6 +55,27 @@ function ComponentNodeInner({ id, data, selected }: NodeProps): JSX.Element {
         bg-[#1a1a24]
       `}
     >
+      {isOnPath && pathFocus && (
+        <>
+          <div
+            className="absolute -top-2.5 -left-2.5 z-10 w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white shadow"
+            style={{ background: severity ? SEVERITY_HEX[severity] : '#6366f1' }}
+            title={`Step ${pathIndex + 1} of ${pathLength}`}
+          >
+            {pathIndex + 1}
+          </div>
+          {isSource && (
+            <div className="absolute -top-2.5 left-4 z-10 px-1.5 h-5 rounded-full bg-[#dc2626] text-white text-[9px] font-semibold flex items-center shadow">
+              ⚠ ENTRY
+            </div>
+          )}
+          {isTarget && (
+            <div className="absolute -top-2.5 right-4 z-10 px-1.5 h-5 rounded-full bg-[#7c3aed] text-white text-[9px] font-semibold flex items-center shadow">
+              ◎ TARGET
+            </div>
+          )}
+        </>
+      )}
       {/* Category indicator strip */}
       <div
         className={`absolute top-0 left-0 right-0 h-[2px] rounded-t-lg ${

@@ -3,7 +3,8 @@ import type {
   RuleCondition,
   AnalysisRule,
   ConditionTrace,
-  FindingDerivation
+  FindingDerivation,
+  PathPattern
 } from '../shared/types/analysis'
 
 export interface EvaluationMatch {
@@ -127,17 +128,30 @@ function matchesAll(
   })
 }
 
-/**
- * Multi-hop evaluation. Existential over simple paths: emit one match per
- * vulnerable target node, evidenced by the shortest control-free path to it.
- */
-function evaluatePathRule(
-  rule: AnalysisRule,
-  project: ThreatModelProject
-): EvaluationMatch[] {
-  const pp = rule.pathPattern
-  if (!pp) return []
+export interface FoundPath {
+  sourceId: string
+  targetId: string
+  nodeIds: string[]
+  flowIds: string[]
+}
 
+export function describeControl(pp: PathPattern): string {
+  return pp.without && pp.without.length > 0
+    ? pp.without
+        .map((c) => `${c.target}.${c.field} ${c.operator} ${String(c.value ?? '')}`.trim())
+        .join(' / ')
+    : 'none'
+}
+
+/**
+ * Core multi-hop search. Existential over simple paths: returns the shortest
+ * control-free path to each distinct reachable target node. Shared by rule
+ * evaluation and the Attack-path probe so both use one implementation.
+ */
+export function findControlFreePaths(
+  project: ThreatModelProject,
+  pp: PathPattern
+): FoundPath[] {
   const maxHops = pp.maxHops ?? DEFAULT_MAX_HOPS
   const nodeMap = new Map(project.nodes.map((n) => [n.id, n]))
   const model = project as unknown as Record<string, unknown>
@@ -151,7 +165,6 @@ function evaluatePathRule(
   const isControl = (id: string): boolean =>
     !!pp.without && pp.without.length > 0 && matchesAll(pp.without, nodeCtx(id))
 
-  // Directed adjacency, only along flows that satisfy the edge predicate.
   const adj = new Map<string, Array<{ flowId: string; to: string }>>()
   for (const f of project.flows) {
     if (pp.edge && pp.edge.length > 0) {
@@ -168,24 +181,22 @@ function evaluatePathRule(
   const fromNodes = project.nodes.filter((n) => isFrom(n.id) && !isControl(n.id))
   if (fromNodes.length === 0) return []
 
-  // Multi-source BFS → shortest control-free path to each reachable target.
   interface QItem { id: string; nodes: string[]; flows: string[] }
   const queue: QItem[] = fromNodes.map((n) => ({ id: n.id, nodes: [n.id], flows: [] }))
   const visited = new Set<string>(fromNodes.map((n) => n.id))
-  const targetPaths = new Map<string, QItem>() // toNodeId -> shortest path
+  const targetPaths = new Map<string, QItem>()
 
   while (queue.length > 0) {
     const cur = queue.shift()!
     if (cur.flows.length >= maxHops) continue
     for (const edge of adj.get(cur.id) ?? []) {
       if (visited.has(edge.to)) continue
-      if (isControl(edge.to)) continue // control breaks the chain
+      if (isControl(edge.to)) continue
       const next: QItem = {
         id: edge.to,
         nodes: [...cur.nodes, edge.to],
         flows: [...cur.flows, edge.flowId]
       }
-      // A real path needs >=1 edge; record first (shortest) time we reach a target.
       if (isTo(edge.to) && !targetPaths.has(edge.to)) {
         targetPaths.set(edge.to, next)
       }
@@ -194,34 +205,96 @@ function evaluatePathRule(
     }
   }
 
-  if (targetPaths.size === 0) return []
+  return [...targetPaths.values()].map((p) => ({
+    sourceId: p.nodes[0],
+    targetId: p.nodes[p.nodes.length - 1],
+    nodeIds: p.nodes,
+    flowIds: p.flows
+  }))
+}
 
-  const controlDesc =
-    pp.without && pp.without.length > 0
-      ? pp.without.map((c) => `${c.target}.${c.field} ${c.operator} ${String(c.value ?? '')}`.trim()).join(' / ')
-      : 'none'
+/** Untrusted source component types used by the Attack-path probe. */
+export const UNTRUSTED_SOURCE_TYPES = [
+  'external-actor',
+  'prompt-input',
+  'external-knowledge-source',
+  'dataset-source',
+  'document-ingestion-pipeline'
+]
 
-  const matches: EvaluationMatch[] = []
-  for (const [, path] of targetPaths) {
-    const labels = path.nodes.map((id) => nodeMap.get(id)?.label ?? id)
-    matches.push({
-      nodeIds: path.nodes,
-      flowIds: path.flows,
+/** Control component types whose presence on a path breaks the chain. */
+export const CONTROL_NODE_TYPES = [
+  'guardrail',
+  'moderation-layer',
+  'human-in-the-loop',
+  'evaluation-engine',
+  'output-post-processor'
+]
+
+/**
+ * Attack-path probe: every shortest control-free path from any untrusted
+ * source to the given target node. One path per reachable source, sorted
+ * shortest-first. Reuses findControlFreePaths per source.
+ */
+export function probePathsToNode(
+  project: ThreatModelProject,
+  targetNodeId: string,
+  maxHops = DEFAULT_MAX_HOPS
+): FoundPath[] {
+  const results: FoundPath[] = []
+  for (const src of project.nodes) {
+    if (!UNTRUSTED_SOURCE_TYPES.includes(src.type)) continue
+    if (src.id === targetNodeId) continue
+    const found = findControlFreePaths(project, {
+      from: [{ target: 'node', field: 'id', operator: 'equals', value: src.id }],
+      to: [{ target: 'node', field: 'id', operator: 'equals', value: targetNodeId }],
+      without: [
+        { target: 'node', field: 'type', operator: 'in', value: CONTROL_NODE_TYPES }
+      ],
+      maxHops
+    })
+    const hit = found.find((p) => p.targetId === targetNodeId)
+    if (hit) results.push(hit)
+  }
+  return results.sort((a, b) => a.nodeIds.length - b.nodeIds.length)
+}
+
+/**
+ * Multi-hop rule evaluation: emit one match per vulnerable target node,
+ * evidenced by the shortest control-free path to it.
+ */
+function evaluatePathRule(
+  rule: AnalysisRule,
+  project: ThreatModelProject
+): EvaluationMatch[] {
+  const pp = rule.pathPattern
+  if (!pp) return []
+
+  const paths = findControlFreePaths(project, pp)
+  if (paths.length === 0) return []
+
+  const nodeMap = new Map(project.nodes.map((n) => [n.id, n]))
+  const controlDesc = describeControl(pp)
+
+  return paths.map((p) => {
+    const labels = p.nodeIds.map((id) => nodeMap.get(id)?.label ?? id)
+    return {
+      nodeIds: p.nodeIds,
+      flowIds: p.flowIds,
       boundaryIds: [],
       rationale: `Rule "${rule.name}" (${rule.id}) found an attack path: ${labels.join(' -> ')}. No control node (${controlDesc}) on this path. ${rule.description}`,
       derivation: {
-        logicOperator: 'and',
+        logicOperator: 'and' as const,
         conditions: [],
         path: {
-          nodeIds: path.nodes,
-          flowIds: path.flows,
+          nodeIds: p.nodeIds,
+          flowIds: p.flowIds,
           missingControl: controlDesc,
-          vulnerableTargetCount: targetPaths.size
+          vulnerableTargetCount: paths.length
         }
       }
-    })
-  }
-  return matches
+    }
+  })
 }
 
 export function evaluateRule(rule: AnalysisRule, project: ThreatModelProject): EvaluationMatch[] {

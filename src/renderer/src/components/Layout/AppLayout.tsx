@@ -5,6 +5,7 @@ import { ThreatModelCanvas } from '../Canvas/ThreatModelCanvas'
 import { PropertyPanel } from '../PropertyPanel/PropertyPanel'
 import { FindingsPanel } from '../FindingsPanel/FindingsPanel'
 import { NotesPanel } from '../NotesPanel/NotesPanel'
+import { AttackPathsPanel } from '../AttackPathsPanel/AttackPathsPanel'
 import { AboutDialog } from '../AboutDialog/AboutDialog'
 import { SamplesDialog } from '../SamplesDialog/SamplesDialog'
 import { useProjectStore } from '../../stores/project-store'
@@ -71,6 +72,7 @@ export function AppLayout(): JSX.Element {
             {activePanel === 'properties' && <PropertyPanel />}
             {activePanel === 'findings' && <FindingsPanel />}
             {activePanel === 'notes' && <NotesPanel />}
+            {activePanel === 'attack-paths' && <AttackPathsPanel />}
           </div>
         )}
       </div>

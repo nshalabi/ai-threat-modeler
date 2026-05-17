@@ -122,6 +122,10 @@ export function Toolbar(): JSX.Element {
     setActivePanel(activePanel === 'notes' ? null : 'notes')
   }
 
+  const toggleAttackPaths = () => {
+    setActivePanel(activePanel === 'attack-paths' ? null : 'attack-paths')
+  }
+
   const hasFindings = findings.length > 0
   const highlightActive = highlightedNodeIds.length > 0
 
@@ -211,6 +215,13 @@ export function Toolbar(): JSX.Element {
           active={activePanel === 'findings'}
         >
           Findings{findings.length > 0 ? ` (${findings.length})` : ''}
+        </ToolbarButton>
+        <ToolbarButton
+          onClick={toggleAttackPaths}
+          title="Toggle Attack Paths Panel"
+          active={activePanel === 'attack-paths'}
+        >
+          Attack Paths
         </ToolbarButton>
         <ToolbarDivider />
         <ToolbarButton onClick={() => setShowAbout(true)} title="About">

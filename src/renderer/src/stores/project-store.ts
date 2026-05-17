@@ -14,6 +14,7 @@ import type {
 import type { Finding } from '@shared/types/analysis'
 import type { Severity } from '@shared/types/knowledge'
 import { COMPONENT_MAP } from '@shared/constants/component-library'
+import { probePathsToNode, type FoundPath } from '../../../analysis/evaluator'
 
 interface ProjectState {
   // Project data
@@ -27,7 +28,7 @@ interface ProjectState {
   selectedFlowId: string | null
 
   // Active panel
-  activePanel: 'properties' | 'findings' | 'notes' | null
+  activePanel: 'properties' | 'findings' | 'notes' | 'attack-paths' | null
 
   // Currently selected finding (drives canvas highlight)
   selectedFindingId: string | null
@@ -36,6 +37,12 @@ interface ProjectState {
   highlightedNodeIds: string[]
   highlightedFlowIds: string[]
   highlightSeverity: Severity | null
+
+  // Attack-path view (#4): probed paths + ordered active path for sequence
+  // badges / source-target markers / focus (spotlight) rendering.
+  attackProbePaths: FoundPath[]
+  orderedPathNodeIds: string[]
+  pathFocus: boolean
 
   // Full-screen canvas mode
   isFullScreen: boolean
@@ -69,13 +76,17 @@ interface ProjectState {
 
   selectNode: (id: string | null) => void
   selectFlow: (id: string | null) => void
-  setActivePanel: (panel: 'properties' | 'findings' | 'notes' | null) => void
+  setActivePanel: (panel: 'properties' | 'findings' | 'notes' | 'attack-paths' | null) => void
 
   setFindings: (findings: Finding[]) => void
 
   selectFinding: (findingId: string | null) => void
   showHighRiskPath: () => void
   clearHighlight: () => void
+
+  probeAttackPaths: (nodeId: string) => void
+  activatePath: (nodeIds: string[], flowIds: string[], severity: Severity | null) => void
+  clearAttackPaths: () => void
 
   toggleFullScreen: () => void
   setShowAbout: (show: boolean) => void
@@ -112,6 +123,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   highlightedNodeIds: [],
   highlightedFlowIds: [],
   highlightSeverity: null,
+  attackProbePaths: [],
+  orderedPathNodeIds: [],
+  pathFocus: false,
   isFullScreen: false,
   showAbout: false,
   showSamples: false,
@@ -386,7 +400,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     })
   },
 
-  setActivePanel: (panel: 'properties' | 'findings' | 'notes' | null) => {
+  setActivePanel: (panel: 'properties' | 'findings' | 'notes' | 'attack-paths' | null) => {
     set({ activePanel: panel })
   },
 
@@ -396,7 +410,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       selectedFindingId: null,
       highlightedNodeIds: [],
       highlightedFlowIds: [],
-      highlightSeverity: null
+      highlightSeverity: null,
+      attackProbePaths: [],
+      orderedPathNodeIds: [],
+      pathFocus: false
     })
   },
 
@@ -416,7 +433,12 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       selectedFindingId: findingId,
       highlightedNodeIds: finding.affectedNodeIds,
       highlightedFlowIds: finding.affectedFlowIds,
-      highlightSeverity: finding.severity
+      highlightSeverity: finding.severity,
+      // If the finding is a multi-hop path, drive the ordered path visuals.
+      orderedPathNodeIds: finding.derivation.path
+        ? finding.derivation.path.nodeIds
+        : [],
+      pathFocus: !!finding.derivation.path
     })
   },
 
@@ -447,7 +469,9 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       selectedFindingId: null,
       highlightedNodeIds: Array.from(nodeIds),
       highlightedFlowIds: Array.from(flowIds),
-      highlightSeverity: severity
+      highlightSeverity: severity,
+      orderedPathNodeIds: [],
+      pathFocus: false
     })
   },
 
@@ -456,7 +480,41 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       selectedFindingId: null,
       highlightedNodeIds: [],
       highlightedFlowIds: [],
-      highlightSeverity: null
+      highlightSeverity: null,
+      orderedPathNodeIds: [],
+      pathFocus: false
+    })
+  },
+
+  probeAttackPaths: (nodeId: string) => {
+    const paths = probePathsToNode(get().project, nodeId)
+    set({ attackProbePaths: paths, activePanel: 'attack-paths' })
+  },
+
+  activatePath: (
+    nodeIds: string[],
+    flowIds: string[],
+    severity: Severity | null
+  ) => {
+    set({
+      selectedFindingId: null,
+      highlightedNodeIds: nodeIds,
+      highlightedFlowIds: flowIds,
+      highlightSeverity: severity ?? 'high',
+      orderedPathNodeIds: nodeIds,
+      pathFocus: true
+    })
+  },
+
+  clearAttackPaths: () => {
+    set({
+      attackProbePaths: [],
+      selectedFindingId: null,
+      highlightedNodeIds: [],
+      highlightedFlowIds: [],
+      highlightSeverity: null,
+      orderedPathNodeIds: [],
+      pathFocus: false
     })
   },
 
