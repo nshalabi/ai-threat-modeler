@@ -1,0 +1,536 @@
+{
+  "version": "1.0",
+  "id": "sample-rag-indirect-injection",
+  "name": "Customer-Support RAG Assistant (Indirect Injection)",
+  "description": "A realistic enterprise customer-support assistant that answers questions using a RAG pipeline over public help-center docs and user-submitted support tickets. It demonstrates indirect prompt injection: untrusted external content is ingested and retrieved into the model context with no guardrail or moderation on the ingestion path.",
+  "createdAt": "2026-05-01T00:00:00.000Z",
+  "updatedAt": "2026-05-01T00:00:00.000Z",
+  "nodes": [
+    {
+      "id": "node-customer",
+      "type": "external-actor",
+      "label": "Customer",
+      "position": { "x": 0, "y": 320 },
+      "properties": {
+        "internetFacing": true,
+        "isExternal": true,
+        "description": "External customer interacting with the support assistant via the web"
+      }
+    },
+    {
+      "id": "node-webapp",
+      "type": "web-app",
+      "label": "Support Web App",
+      "position": { "x": 240, "y": 320 },
+      "properties": {
+        "internetFacing": true,
+        "hasInputValidation": true,
+        "hasLogging": true,
+        "description": "Customer-facing chat UI with basic request validation"
+      }
+    },
+    {
+      "id": "node-idp",
+      "type": "identity-provider",
+      "label": "Identity Provider",
+      "position": { "x": 240, "y": 120 },
+      "properties": {
+        "handlesCredentials": true,
+        "hasRBAC": true,
+        "hasLogging": true,
+        "description": "Authenticates customers before chat sessions"
+      }
+    },
+    {
+      "id": "node-gateway",
+      "type": "api-gateway",
+      "label": "API Gateway",
+      "position": { "x": 470, "y": 320 },
+      "properties": {
+        "hasRBAC": true,
+        "hasLogging": true,
+        "internetFacing": true,
+        "description": "Edge gateway terminating TLS and enforcing authentication"
+      }
+    },
+    {
+      "id": "node-rag",
+      "type": "rag-orchestrator",
+      "label": "RAG Orchestrator",
+      "position": { "x": 700, "y": 320 },
+      "properties": {
+        "hasLogging": true,
+        "hasInputValidation": false,
+        "hasGroundingChecks": false,
+        "description": "Builds prompts from the user question plus retrieved documents and calls the model"
+      }
+    },
+    {
+      "id": "node-embed",
+      "type": "embedding-model",
+      "label": "Embedding Model",
+      "position": { "x": 700, "y": 520 },
+      "properties": {
+        "isExternal": false,
+        "hasLogging": true,
+        "description": "Self-hosted embedding model used for both ingestion and query embedding"
+      }
+    },
+    {
+      "id": "node-vstore",
+      "type": "vector-db",
+      "label": "Document Vector Store",
+      "position": { "x": 940, "y": 520 },
+      "properties": {
+        "dataClassification": "internal",
+        "internetFacing": false,
+        "hasRBAC": true,
+        "hasLogging": true,
+        "description": "Vector index of help-center docs and support ticket history"
+      }
+    },
+    {
+      "id": "node-llm",
+      "type": "hosted-model-api",
+      "label": "Hosted LLM",
+      "position": { "x": 1180, "y": 320 },
+      "properties": {
+        "isExternal": true,
+        "provider": "Hosted LLM Provider",
+        "hasOutputFiltering": false,
+        "hasInputValidation": false,
+        "hasSystemPromptProtection": false,
+        "hasGroundingChecks": false,
+        "description": "Third-party hosted LLM endpoint generating the assistant's answers"
+      }
+    },
+    {
+      "id": "node-postproc",
+      "type": "output-post-processor",
+      "label": "Output Post-Processor",
+      "position": { "x": 940, "y": 180 },
+      "properties": {
+        "hasOutputFiltering": true,
+        "hasLogging": true,
+        "description": "Strips internal identifiers and formats the final answer for display"
+      }
+    },
+    {
+      "id": "node-memory",
+      "type": "memory-store",
+      "label": "Conversation Memory",
+      "position": { "x": 700, "y": 120 },
+      "properties": {
+        "hasInputValidation": false,
+        "hasLogging": true,
+        "description": "Stores prior conversation turns reused as context on later turns"
+      }
+    },
+    {
+      "id": "node-ingest",
+      "type": "document-ingestion-pipeline",
+      "label": "Document Ingestion Pipeline",
+      "position": { "x": 470, "y": 640 },
+      "properties": {
+        "isExternal": false,
+        "hasInputValidation": false,
+        "hasLogging": true,
+        "description": "Chunks and embeds external content for indexing - no content sanitization"
+      }
+    },
+    {
+      "id": "node-publicdocs",
+      "type": "external-knowledge-source",
+      "label": "Public Help-Center Docs",
+      "position": { "x": 230, "y": 600 },
+      "properties": {
+        "isExternal": true,
+        "internetFacing": true,
+        "description": "Crawled public documentation and community articles"
+      }
+    },
+    {
+      "id": "node-tickets",
+      "type": "external-knowledge-source",
+      "label": "Customer Support Tickets",
+      "position": { "x": 230, "y": 700 },
+      "properties": {
+        "isExternal": true,
+        "description": "User-submitted support tickets indexed for retrieval - attacker-controllable text"
+      }
+    },
+    {
+      "id": "node-ordertool",
+      "type": "tool-connector",
+      "label": "Order Lookup Tool",
+      "position": { "x": 940, "y": 320 },
+      "properties": {
+        "hasApprovalFlow": false,
+        "hasRBAC": false,
+        "hasLogging": false,
+        "description": "Tool the assistant can call to fetch order and account status"
+      }
+    },
+    {
+      "id": "node-crm",
+      "type": "backend-service",
+      "label": "CRM / Order System",
+      "position": { "x": 1180, "y": 520 },
+      "properties": {
+        "hasRBAC": true,
+        "hasLogging": true,
+        "handlesPII": true,
+        "dataClassification": "confidential",
+        "description": "System of record for customer orders and account data"
+      }
+    },
+    {
+      "id": "node-logging",
+      "type": "logging-monitoring",
+      "label": "Logging & Monitoring",
+      "position": { "x": 470, "y": 120 },
+      "properties": {
+        "hasLogging": true,
+        "description": "Centralized logging and alerting (receives logs out-of-band)"
+      }
+    }
+  ],
+  "flows": [
+    {
+      "id": "flow-customer-webapp",
+      "source": "node-customer",
+      "target": "node-webapp",
+      "label": "Question (HTTPS)",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "public",
+        "dataTypes": ["prompts"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-webapp-idp",
+      "source": "node-webapp",
+      "target": "node-idp",
+      "label": "Authenticate",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
+      "id": "flow-webapp-gateway",
+      "source": "node-webapp",
+      "target": "node-gateway",
+      "label": "Forward request",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-gateway-rag",
+      "source": "node-gateway",
+      "target": "node-rag",
+      "label": "User question",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-rag-embed",
+      "source": "node-rag",
+      "target": "node-embed",
+      "label": "Embed query",
+      "properties": {
+        "protocol": "gRPC",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-embed-vstore",
+      "source": "node-embed",
+      "target": "node-vstore",
+      "label": "Query vectors",
+      "properties": {
+        "protocol": "gRPC",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["embeddings"]
+      }
+    },
+    {
+      "id": "flow-vstore-rag",
+      "source": "node-vstore",
+      "target": "node-rag",
+      "label": "Retrieved documents",
+      "properties": {
+        "protocol": "gRPC",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-rag-memory",
+      "source": "node-rag",
+      "target": "node-memory",
+      "label": "Store turn",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-memory-rag",
+      "source": "node-memory",
+      "target": "node-rag",
+      "label": "Prior context",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["prompts"]
+      }
+    },
+    {
+      "id": "flow-rag-llm",
+      "source": "node-rag",
+      "target": "node-llm",
+      "label": "Prompt + retrieved context",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["prompts"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-llm-postproc",
+      "source": "node-llm",
+      "target": "node-postproc",
+      "label": "Model output",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-postproc-webapp",
+      "source": "node-postproc",
+      "target": "node-webapp",
+      "label": "Formatted answer",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-webapp-customer",
+      "source": "node-webapp",
+      "target": "node-customer",
+      "label": "Answer (HTTPS)",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "public",
+        "dataTypes": ["model-outputs"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-rag-ordertool",
+      "source": "node-rag",
+      "target": "node-ordertool",
+      "label": "Tool call",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-ordertool-crm",
+      "source": "node-ordertool",
+      "target": "node-crm",
+      "label": "Order query",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["pii"]
+      }
+    },
+    {
+      "id": "flow-crm-ordertool",
+      "source": "node-crm",
+      "target": "node-ordertool",
+      "label": "Order data",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["pii"]
+      }
+    },
+    {
+      "id": "flow-publicdocs-ingest",
+      "source": "node-publicdocs",
+      "target": "node-ingest",
+      "label": "Crawled docs",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "public",
+        "dataTypes": ["general"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-tickets-ingest",
+      "source": "node-tickets",
+      "target": "node-ingest",
+      "label": "Ticket text",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": false,
+        "dataClassification": "public",
+        "dataTypes": ["general"],
+        "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-ingest-embed",
+      "source": "node-ingest",
+      "target": "node-embed",
+      "label": "Chunks to embed",
+      "properties": {
+        "protocol": "gRPC",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    },
+    {
+      "id": "flow-rag-logging",
+      "source": "node-rag",
+      "target": "node-logging",
+      "label": "Telemetry",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"]
+      }
+    }
+  ],
+  "boundaries": [
+    {
+      "id": "boundary-public",
+      "type": "public-internet",
+      "label": "Public Internet",
+      "nodeIds": ["node-customer", "node-publicdocs", "node-tickets"],
+      "properties": {}
+    },
+    {
+      "id": "boundary-cloud",
+      "type": "cloud-tenant",
+      "label": "Cloud Tenant",
+      "nodeIds": [
+        "node-webapp",
+        "node-idp",
+        "node-gateway",
+        "node-rag",
+        "node-embed",
+        "node-vstore",
+        "node-postproc",
+        "node-memory",
+        "node-ingest",
+        "node-ordertool",
+        "node-crm",
+        "node-logging"
+      ],
+      "properties": {}
+    },
+    {
+      "id": "boundary-provider",
+      "type": "model-provider",
+      "label": "Model Provider",
+      "nodeIds": ["node-llm"],
+      "properties": {}
+    }
+  ],
+  "notes": [
+    {
+      "id": "note-injection",
+      "content": "Indirect prompt injection: both the public help-center docs and the user-submitted support tickets are attacker-influenceable. They are ingested, embedded, and indexed with no guardrail or content sanitization, then retrieved into the model prompt. A malicious instruction planted in a support ticket can hijack the assistant when that ticket is later retrieved as 'context'.",
+      "category": "finding-response",
+      "author": "Security Architect",
+      "createdAt": "2026-05-01T00:00:00.000Z",
+      "updatedAt": "2026-05-01T00:00:00.000Z",
+      "linkedNodeId": "node-tickets"
+    },
+    {
+      "id": "note-design",
+      "content": "This is an otherwise reasonable design - TLS everywhere, authentication, RBAC on data stores, centralized logging, output post-processing. The lesson: transport and access controls do not stop indirect prompt injection. The missing control is content sanitization / a guardrail on the ingestion-to-model path.",
+      "category": "decision",
+      "author": "Security Architect",
+      "createdAt": "2026-05-01T00:00:00.000Z",
+      "updatedAt": "2026-05-01T00:00:00.000Z",
+      "linkedNodeId": "node-ingest"
+    },
+    {
+      "id": "note-tool",
+      "content": "The Order Lookup Tool reaches confidential PII in the CRM and has no approval flow, RBAC, or logging. Combined with the injection path, a hijacked assistant could be steered to call this tool - an exfiltration chain worth modeling.",
+      "category": "assumption",
+      "author": "Security Architect",
+      "createdAt": "2026-05-01T00:00:00.000Z",
+      "updatedAt": "2026-05-01T00:00:00.000Z",
+      "linkedNodeId": "node-ordertool"
+    }
+  ],
+  "metadata": {
+    "samplePurpose": "Educational: a realistic customer-support RAG architecture that is well-built on transport/access controls but vulnerable to indirect prompt injection because untrusted ingested content reaches the model with no guardrail. Demonstrates the multi-hop indirect-injection attack path plus related agent-tool exfiltration risks."
+  }
+}

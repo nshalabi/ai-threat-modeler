@@ -59,6 +59,7 @@ The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects tha
 | [`internal-ai-agent.aitm`](samples/internal-ai-agent.aitm) | Internal enterprise agent with tool access (DB queries, API calls, email) — agent autonomy and over-privileged tool risks. |
 | [`multi-provider-sensitive-data.aitm`](samples/multi-provider-sensitive-data.aitm) | Enterprise RAG handling regulated financial data across multiple model providers — data residency, multi-tenant, and provider trust risks. |
 | [`ml-training-pipeline.aitm`](samples/ml-training-pipeline.aitm) | Model fine-tuning workflow — training data integrity and supply chain risks. |
+| [`rag-indirect-injection.aitm`](samples/rag-indirect-injection.aitm) | Customer-support RAG assistant — realistic design that is well-built on transport/access controls but vulnerable to **indirect prompt injection** through ingested external content. Demonstrates multi-hop attack-path detection. |
 | [`minimal-safe-architecture.aitm`](samples/minimal-safe-architecture.aitm) | A hardened reference architecture with recommended controls in place — useful as a contrast to the other samples. |
 
 After opening a sample, click **Analyze** in the toolbar to run the rules engine and see findings mapped to MITRE ATLAS, OWASP LLM Top 10, NIST AI RMF, and NIST CSF.
