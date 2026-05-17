@@ -41,6 +41,7 @@ interface ProjectState {
   // Attack-path view (#4): probed paths + ordered active path for sequence
   // badges / source-target markers / focus (spotlight) rendering.
   attackProbePaths: FoundPath[]
+  probeTargetId: string | null
   orderedPathNodeIds: string[]
   pathFocus: boolean
 
@@ -124,6 +125,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   highlightedFlowIds: [],
   highlightSeverity: null,
   attackProbePaths: [],
+  probeTargetId: null,
   orderedPathNodeIds: [],
   pathFocus: false,
   isFullScreen: false,
@@ -412,6 +414,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
       highlightedFlowIds: [],
       highlightSeverity: null,
       attackProbePaths: [],
+      probeTargetId: null,
       orderedPathNodeIds: [],
       pathFocus: false
     })
@@ -488,7 +491,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   probeAttackPaths: (nodeId: string) => {
     const paths = probePathsToNode(get().project, nodeId)
-    set({ attackProbePaths: paths, activePanel: 'attack-paths' })
+    set({ attackProbePaths: paths, probeTargetId: nodeId, activePanel: 'attack-paths' })
   },
 
   activatePath: (
@@ -509,6 +512,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   clearAttackPaths: () => {
     set({
       attackProbePaths: [],
+      probeTargetId: null,
       selectedFindingId: null,
       highlightedNodeIds: [],
       highlightedFlowIds: [],

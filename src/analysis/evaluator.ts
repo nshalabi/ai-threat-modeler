@@ -232,6 +232,30 @@ export const CONTROL_NODE_TYPES = [
 ]
 
 /**
+ * Asset / sink component types that are meaningful Attack-path probe
+ * targets — things an attacker would want to reach. Mirrors the `to`
+ * vocabulary used by the path rules.
+ */
+export const ASSET_TARGET_TYPES = [
+  'llm',
+  'hosted-model-api',
+  'self-hosted-model',
+  'embedding-model',
+  'vector-db',
+  'memory-store',
+  'tool-connector',
+  'plugin',
+  'database',
+  'object-storage',
+  'secrets-vault',
+  'model-registry',
+  'fine-tuning-pipeline',
+  'training-data-repo',
+  'feature-store',
+  'backend-service'
+]
+
+/**
  * Attack-path probe: every shortest control-free path from any untrusted
  * source to the given target node. One path per reachable source, sorted
  * shortest-first. Reuses findControlFreePaths per source.
