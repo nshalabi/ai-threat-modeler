@@ -26,6 +26,7 @@ export function Toolbar(): JSX.Element {
   const highlightedNodeIds = useProjectStore((s) => s.highlightedNodeIds)
   const setShowAbout = useProjectStore((s) => s.setShowAbout)
   const setShowSamples = useProjectStore((s) => s.setShowSamples)
+  const setShowShare = useProjectStore((s) => s.setShowShare)
   const notes = useProjectStore((s) => s.project.notes)
 
   const [reportsOpen, setReportsOpen] = useState(false)
@@ -145,6 +146,14 @@ export function Toolbar(): JSX.Element {
         <ToolbarButton onClick={() => setShowSamples(true)} title="Load a sample project">
           Samples
         </ToolbarButton>
+        {platform.kind === 'web' && (
+          <ToolbarButton
+            onClick={() => setShowShare(true)}
+            title="Share this design as a link"
+          >
+            Share
+          </ToolbarButton>
+        )}
         <ToolbarDivider />
         <ToolbarButton onClick={handleRunAnalysis} title="Run Analysis" accent>
           Analyze

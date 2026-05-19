@@ -8,6 +8,7 @@ import { NotesPanel } from '../NotesPanel/NotesPanel'
 import { AttackPathsPanel } from '../AttackPathsPanel/AttackPathsPanel'
 import { AboutDialog } from '../AboutDialog/AboutDialog'
 import { SamplesDialog } from '../SamplesDialog/SamplesDialog'
+import { ShareDialog } from '../ShareDialog/ShareDialog'
 import { useProjectStore } from '../../stores/project-store'
 
 export function AppLayout(): JSX.Element {
@@ -18,6 +19,8 @@ export function AppLayout(): JSX.Element {
   const setShowAbout = useProjectStore((s) => s.setShowAbout)
   const showSamples = useProjectStore((s) => s.showSamples)
   const setShowSamples = useProjectStore((s) => s.setShowSamples)
+  const showShare = useProjectStore((s) => s.showShare)
+  const setShowShare = useProjectStore((s) => s.setShowShare)
 
   // ESC exits full-screen mode
   useEffect(() => {
@@ -48,6 +51,7 @@ export function AppLayout(): JSX.Element {
         </div>
         {showAbout && <AboutDialog onClose={() => setShowAbout(false)} />}
         {showSamples && <SamplesDialog onClose={() => setShowSamples(false)} />}
+        {showShare && <ShareDialog onClose={() => setShowShare(false)} />}
       </div>
     )
   }

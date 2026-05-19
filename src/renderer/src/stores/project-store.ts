@@ -54,6 +54,9 @@ interface ProjectState {
   // Samples dialog visibility
   showSamples: boolean
 
+  // Share dialog visibility (web only)
+  showShare: boolean
+
   // Actions
   newProject: (name: string, description?: string) => void
   setProject: (project: ThreatModelProject, path?: string) => void
@@ -92,6 +95,7 @@ interface ProjectState {
   toggleFullScreen: () => void
   setShowAbout: (show: boolean) => void
   setShowSamples: (show: boolean) => void
+  setShowShare: (show: boolean) => void
 
   markClean: () => void
 }
@@ -131,6 +135,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   isFullScreen: false,
   showAbout: false,
   showSamples: false,
+  showShare: false,
 
   newProject: (name: string, description?: string) => {
     set({
@@ -532,6 +537,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   setShowSamples: (show: boolean) => {
     set({ showSamples: show })
+  },
+
+  setShowShare: (show: boolean) => {
+    set({ showShare: show })
   },
 
   markClean: () => {
