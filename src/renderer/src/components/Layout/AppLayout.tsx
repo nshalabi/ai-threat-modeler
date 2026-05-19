@@ -83,6 +83,7 @@ export function AppLayout(): JSX.Element {
 
       {showAbout && <AboutDialog onClose={() => setShowAbout(false)} />}
       {showSamples && <SamplesDialog onClose={() => setShowSamples(false)} />}
+      {showShare && <ShareDialog onClose={() => setShowShare(false)} />}
     </div>
   )
 }
