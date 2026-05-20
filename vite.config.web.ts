@@ -6,14 +6,19 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { resolve } from 'path'
+import { readFileSync } from 'fs'
 
 const repoBase = process.env.VITE_BASE ?? '/ai-threat-modeler/'
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf8')) as {
+  version: string
+}
 
 export default defineConfig({
   root: resolve(__dirname, 'src/renderer'),
   base: repoBase,
   define: {
-    __APP_TARGET__: JSON.stringify('web')
+    __APP_TARGET__: JSON.stringify('web'),
+    __APP_VERSION__: JSON.stringify(pkg.version)
   },
   resolve: {
     alias: {

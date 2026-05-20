@@ -7,7 +7,7 @@ interface AboutDialogProps {
   onClose: () => void
 }
 
-const APP_VERSION = '0.1.0'
+const APP_VERSION = __APP_VERSION__
 
 export function AboutDialog({ onClose }: AboutDialogProps): JSX.Element {
   const open = (url: string) => {

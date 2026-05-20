@@ -110,7 +110,7 @@ export interface ReportData {
 }
 
 const APP_NAME = 'AI Threat Modeler'
-const APP_VERSION = '0.1.0'
+const APP_VERSION = __APP_VERSION__
 const AUTHOR = 'Nader Shalabi'
 
 export function buildReportData(

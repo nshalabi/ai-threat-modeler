@@ -5,6 +5,10 @@
 // adapter falls back to feature detection on `window.api`.
 declare const __APP_TARGET__: 'electron' | 'web' | undefined
 
+// Single source of truth for the app version — injected at build time from
+// package.json by electron.vite.config.ts and vite.config.web.ts.
+declare const __APP_VERSION__: string
+
 interface Window {
   api: {
     saveProject: (data: string) => Promise<{ success: boolean; path?: string }>

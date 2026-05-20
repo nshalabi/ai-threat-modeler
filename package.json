@@ -1,6 +1,6 @@
 {
   "name": "ai-threat-modeler",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "AI Threat Modeler — Desktop application for AI threat modeling and attack surface analysis",
   "main": "./out/main/index.js",
   "author": {
