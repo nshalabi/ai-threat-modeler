@@ -28,7 +28,7 @@ AI Threat Modeler is a visual threat modeling tool specialized for AI systems, L
 - Available as a web app (no install) and as a desktop app (Windows / macOS / Linux)
 - Local-first — desktop runs fully offline, web runs entirely client-side
 - JSON project files (.aitm) with import/export
-- PDF, Word, and CSV report generation
+- PDF, Word, and CSV report generation — includes a dedicated **Attack Paths** section and findings split into Open / Accepted Risks / False Positives, with full risk-treatment history
 
 ## Getting Started
 

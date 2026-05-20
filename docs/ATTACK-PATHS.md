@@ -103,3 +103,16 @@ with a fixed untrusted-source set (`external-actor`, `prompt-input`,
 and the standard control node types
 (`guardrail`, `moderation-layer`, `human-in-the-loop`, `evaluation-engine`,
 `output-post-processor`).
+
+## In exported reports
+
+Path findings are surfaced in PDF, DOCX, and CSV exports. PDF and DOCX get a
+dedicated **Attack Paths** section listing every multi-hop finding with its
+ordered chain, missing control, severity, and status (Open / Accepted /
+False Positive). Each finding also restates its chain inline in the
+findings section, and any risk-treatment disposition (severity override,
+acceptance, false-positive) is disclosed alongside the chain with the
+decision owner, timestamp, and justification. The CSV adds Attack Path,
+Missing Control, and Vulnerable Target Count columns, plus a full
+disposition audit log as a separate section so the report functions as a
+complete audit artefact.

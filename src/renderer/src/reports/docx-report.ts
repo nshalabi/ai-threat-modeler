@@ -1,5 +1,8 @@
 /**
  * DOCX report — same content as PDF report.
+ *
+ * #10: findings split by status; severity overrides disclosed; dedicated
+ * Attack Paths section.
  */
 import {
   Document,
@@ -29,6 +32,8 @@ const SEVERITY_HEX: Record<Severity, string> = {
 }
 
 const ACCENT = '6366F1'
+const ACCEPTED_BG = '107A57'
+const FP_BG = '475569'
 
 export async function generateDocxReport(data: ReportData): Promise<ArrayBuffer> {
   const children: (Paragraph | Table)[] = []
@@ -82,15 +87,26 @@ export async function generateDocxReport(data: ReportData): Promise<ArrayBuffer>
     })
   )
 
-  // Severity table
+  // Effective severity table
   children.push(new Paragraph({ text: '' }))
   children.push(
     table(
-      ['Severity', 'Count'],
+      ['Effective severity', 'Count'],
       (['critical', 'high', 'medium', 'low', 'informational'] as Severity[]).map((s) => [
         s.toUpperCase(),
         String(data.summary.bySeverity[s])
       ])
+    )
+  )
+  children.push(new Paragraph({ text: '' }))
+  children.push(
+    table(
+      ['Status', 'Count'],
+      [
+        ['OPEN', String(data.summary.byStatus.open)],
+        ['ACCEPTED RISKS', String(data.summary.byStatus.accepted)],
+        ['FALSE POSITIVES', String(data.summary.byStatus.falsePositive)]
+      ]
     )
   )
 
@@ -130,7 +146,37 @@ export async function generateDocxReport(data: ReportData): Promise<ArrayBuffer>
     )
   }
 
-  // Findings
+  // Attack Paths
+  if (data.attackPathFindings.length > 0) {
+    children.push(heading('Attack Paths'))
+    children.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text:
+              'Chained attacks where an untrusted source can reach a target along a path with no control node interrupting it. Each entry shows the shortest control-free path the analysis engine found.',
+            italics: true,
+            color: '64748B',
+            size: 18
+          })
+        ]
+      })
+    )
+    children.push(
+      table(
+        ['Severity', 'Status', 'Finding', 'Path', 'Missing control'],
+        data.attackPathFindings.map((f) => [
+          f.effectiveSeverity.toUpperCase(),
+          f.status === 'open' ? 'OPEN' : f.status === 'accepted' ? 'ACCEPTED' : 'FALSE POSITIVE',
+          f.title,
+          f.attackPath?.chain.join(' → ') ?? '',
+          f.attackPath?.missingControl ?? ''
+        ])
+      )
+    )
+  }
+
+  // Findings split by status
   children.push(heading('Findings'))
   if (data.findings.length === 0) {
     children.push(
@@ -141,9 +187,9 @@ export async function generateDocxReport(data: ReportData): Promise<ArrayBuffer>
       })
     )
   } else {
-    for (const f of data.findings) {
-      children.push(...renderFinding(f))
-    }
+    pushFindingGroup(children, 'Open', data.openFindings)
+    pushFindingGroup(children, 'Accepted Risks', data.acceptedFindings)
+    pushFindingGroup(children, 'False Positives', data.falsePositiveFindings)
   }
 
   // Notes
@@ -191,6 +237,26 @@ export async function generateDocxReport(data: ReportData): Promise<ArrayBuffer>
   return await blob.arrayBuffer()
 }
 
+function pushFindingGroup(
+  children: (Paragraph | Table)[],
+  groupTitle: string,
+  findings: ReportFinding[]
+): void {
+  if (findings.length === 0) return
+  children.push(
+    new Paragraph({
+      heading: HeadingLevel.HEADING_2,
+      spacing: { before: 240, after: 80 },
+      children: [
+        new TextRun({ text: `${groupTitle} (${findings.length})`, bold: true, color: ACCENT })
+      ]
+    })
+  )
+  for (const f of findings) {
+    children.push(...renderFinding(f))
+  }
+}
+
 function heading(text: string): Paragraph {
   return new Paragraph({
     heading: HeadingLevel.HEADING_1,
@@ -200,25 +266,55 @@ function heading(text: string): Paragraph {
 }
 
 function renderFinding(f: ReportFinding): Paragraph[] {
-  const sevColor = SEVERITY_HEX[f.severity]
+  const sevColor = SEVERITY_HEX[f.effectiveSeverity]
   const out: Paragraph[] = []
 
+  // Header line with severity badge + optional status badge + title + rule id
+  const headerRuns: TextRun[] = [
+    new TextRun({
+      text: ` ${f.effectiveSeverity.toUpperCase()} `,
+      bold: true,
+      color: 'FFFFFF',
+      shading: { type: ShadingType.SOLID, color: sevColor, fill: sevColor }
+    }),
+    new TextRun({ text: '  ' })
+  ]
+  if (f.status !== 'open') {
+    const bg = f.status === 'accepted' ? ACCEPTED_BG : FP_BG
+    headerRuns.push(
+      new TextRun({
+        text: ` ${f.status === 'accepted' ? 'ACCEPTED' : 'FALSE POSITIVE'} `,
+        bold: true,
+        color: 'FFFFFF',
+        shading: { type: ShadingType.SOLID, color: bg, fill: bg }
+      }),
+      new TextRun({ text: '  ' })
+    )
+  }
+  headerRuns.push(
+    new TextRun({ text: f.title, bold: true, size: 24 }),
+    new TextRun({ text: `   ${f.ruleId}`, size: 16, color: '64748B' })
+  )
   out.push(
     new Paragraph({
-      spacing: { before: 240, after: 80 },
-      children: [
-        new TextRun({
-          text: ` ${f.severity.toUpperCase()} `,
-          bold: true,
-          color: 'FFFFFF',
-          shading: { type: ShadingType.SOLID, color: sevColor, fill: sevColor }
-        }),
-        new TextRun({ text: '  ' }),
-        new TextRun({ text: f.title, bold: true, size: 24 }),
-        new TextRun({ text: `   ${f.ruleId}`, size: 16, color: '64748B' })
-      ]
+      spacing: { before: 200, after: 60 },
+      children: headerRuns
     })
   )
+
+  if (f.override) {
+    out.push(
+      new Paragraph({
+        children: [
+          new TextRun({
+            text: `Engine severity: ${f.override.from.toUpperCase()} → Adjusted: ${f.override.to.toUpperCase()}`,
+            color: '64748B',
+            size: 18
+          })
+        ]
+      })
+    )
+  }
 
   out.push(new Paragraph({ children: [new TextRun({ text: f.description })] }))
 
@@ -230,6 +326,20 @@ function renderFinding(f: ReportFinding): Paragraph[] {
       ]
     })
   )
+
+  if (f.attackPath) {
+    out.push(
+      new Paragraph({
+        children: [
+          new TextRun({ text: 'Attack path: ', bold: true }),
+          new TextRun({ text: f.attackPath.chain.join(' → ') }),
+          new TextRun({ text: '  (no control: ', color: '64748B' }),
+          new TextRun({ text: f.attackPath.missingControl, color: '64748B' }),
+          new TextRun({ text: ')', color: '64748B' })
+        ]
+      })
+    )
+  }
 
   if (f.affectedComponents.length > 0) {
     out.push(
@@ -266,13 +376,42 @@ function renderFinding(f: ReportFinding): Paragraph[] {
 
   out.push(
     new Paragraph({
-      spacing: { after: 120 },
       children: [
         new TextRun({ text: 'Recommendation: ', bold: true }),
         new TextRun({ text: f.recommendation })
       ]
     })
   )
+
+  if (f.latestDisposition) {
+    const d = f.latestDisposition
+    out.push(
+      new Paragraph({
+        spacing: { before: 80 },
+        children: [
+          new TextRun({ text: 'Disposition: ', bold: true, color: '64748B' }),
+          new TextRun({ text: `${d.status.toUpperCase()} — by `, color: '64748B' }),
+          new TextRun({ text: d.name, bold: true, color: '64748B' }),
+          new TextRun({ text: ` · ${formatDate(d.at)}`, color: '64748B' }),
+          new TextRun({ text: ` — "${d.justification}"`, italics: true, color: '64748B' })
+        ]
+      })
+    )
+    if (f.dispositionHistory.length > 1) {
+      out.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Prior disposition entries: ${f.dispositionHistory.length - 1} (see CSV export for full log)`,
+              italics: true,
+              color: '64748B',
+              size: 16
+            })
+          ]
+        })
+      )
+    }
+  }
 
   return out
 }

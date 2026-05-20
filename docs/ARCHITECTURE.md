@@ -23,7 +23,7 @@ AI Threat Modeler is organized into four subsystems that work together to let us
 +---------------------+     +---------------------+
 ```
 
-The **Modeling Engine** provides the visual canvas where users place components and draw data flows. The **Knowledge Engine** loads and indexes structured knowledge packs containing threats, controls, mitigations, and analysis rules. The **Analysis Engine** evaluates rules against the current project model to produce findings. The **Reporting Layer** displays findings and supports export.
+The **Modeling Engine** provides the visual canvas where users place components and draw data flows. The **Knowledge Engine** loads and indexes structured knowledge packs containing threats, controls, mitigations, and analysis rules. The **Analysis Engine** evaluates rules against the current project model to produce findings. The **Reporting Layer** displays findings, surfaces attack paths, manages per-finding risk-treatment dispositions (accept / false-positive / severity override), and exports the analyzed model with disposition history to PDF / DOCX / CSV.
 
 ## Technology Stack
 
