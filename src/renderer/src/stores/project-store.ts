@@ -9,12 +9,15 @@ import type {
   DataFlowProperties,
   BoundaryType,
   Note,
-  NoteCategory
+  NoteCategory,
+  DispositionStatus,
+  SeverityOverride
 } from '@shared/types/model'
 import type { Finding } from '@shared/types/analysis'
 import type { Severity } from '@shared/types/knowledge'
 import { COMPONENT_MAP } from '@shared/constants/component-library'
 import { probePathsToNode, type FoundPath } from '../../../analysis/evaluator'
+import { resolveDisposition } from '../../../analysis/disposition'
 
 interface ProjectState {
   // Project data
@@ -97,6 +100,16 @@ interface ProjectState {
   setShowSamples: (show: boolean) => void
   setShowShare: (show: boolean) => void
 
+  /** Append a disposition action for a finding (#6). Name + justification
+   *  are required (UI enforces). Survives re-analysis via the stable key. */
+  applyDisposition: (input: {
+    key: string
+    status: DispositionStatus
+    severityOverride?: SeverityOverride | null
+    name: string
+    justification: string
+  }) => void
+
   markClean: () => void
 }
 
@@ -112,7 +125,8 @@ function createEmptyProject(name: string, description = ''): ThreatModelProject 
     nodes: [],
     flows: [],
     boundaries: [],
-    notes: []
+    notes: [],
+    dispositions: []
   }
 }
 
@@ -149,8 +163,15 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   },
 
   setProject: (project: ThreatModelProject, path?: string) => {
+    // Older .aitm files predate the disposition log (#6) — ensure the field
+    // is present so the rest of the app can treat it as required.
+    const normalized: ThreatModelProject = {
+      ...project,
+      notes: project.notes ?? [],
+      dispositions: project.dispositions ?? []
+    }
     set({
-      project,
+      project: normalized,
       filePath: path ?? null,
       isDirty: false,
       selectedNodeId: null,
@@ -437,11 +458,13 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     }
     const finding = get().findings.find((f) => f.id === findingId)
     if (!finding) return
+    // Effective severity reflects any #6 override; the canvas glow follows it.
+    const resolved = resolveDisposition(get().project, finding)
     set({
       selectedFindingId: findingId,
       highlightedNodeIds: finding.affectedNodeIds,
       highlightedFlowIds: finding.affectedFlowIds,
-      highlightSeverity: finding.severity,
+      highlightSeverity: resolved.effectiveSeverity,
       // If the finding is a multi-hop path, drive the ordered path visuals.
       orderedPathNodeIds: finding.derivation.path
         ? finding.derivation.path.nodeIds
@@ -541,6 +564,25 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   setShowShare: (show: boolean) => {
     set({ showShare: show })
+  },
+
+  applyDisposition: (input) => {
+    const entry = {
+      id: nanoid(),
+      key: input.key,
+      status: input.status,
+      severityOverride: input.severityOverride ?? null,
+      name: input.name,
+      justification: input.justification,
+      at: new Date().toISOString()
+    }
+    set((state) => ({
+      project: {
+        ...state.project,
+        dispositions: [...state.project.dispositions, entry]
+      },
+      isDirty: true
+    }))
   },
 
   markClean: () => {

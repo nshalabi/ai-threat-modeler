@@ -81,6 +81,23 @@ export const trustBoundarySchema = z.object({
   properties: z.record(z.unknown()).optional(),
 })
 
+const severities = ['critical', 'high', 'medium', 'low', 'informational'] as const
+
+export const severityOverrideSchema = z.object({
+  from: z.enum(severities),
+  to: z.enum(severities),
+})
+
+export const dispositionEntrySchema = z.object({
+  id: z.string().min(1),
+  key: z.string().min(1),
+  status: z.enum(['open', 'accepted', 'false-positive']),
+  severityOverride: severityOverrideSchema.nullable().optional(),
+  name: z.string().min(1),
+  justification: z.string().min(1),
+  at: z.string().min(1),
+})
+
 const noteCategories = ['general', 'todo', 'assumption', 'decision', 'finding-response'] as const
 
 export const noteSchema = z.object({
@@ -106,6 +123,7 @@ export const threatModelProjectSchema = z.object({
   flows: z.array(dataFlowSchema),
   boundaries: z.array(trustBoundarySchema),
   notes: z.array(noteSchema).default([]),
+  dispositions: z.array(dispositionEntrySchema).default([]),
   metadata: z.record(z.unknown()).optional(),
 })
 

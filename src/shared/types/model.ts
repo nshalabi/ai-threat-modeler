@@ -122,6 +122,41 @@ export interface TrustBoundary {
   properties?: Record<string, unknown>
 }
 
+/**
+ * Disposition (#6): a finding's risk-treatment state, recorded as
+ * append-only entries on the project. Each entry captures the FULL new
+ * state for a finding key (status + optional severity override) plus
+ * mandatory name + justification + timestamp. Current disposition for a
+ * finding = the latest entry matching its stable key.
+ *
+ * Stable finding key = `${ruleId}|${sortedNodeIds}|${sortedFlowIds}`. This
+ * survives re-analysis (Finding.id is a fresh nanoid each run).
+ *
+ * Name is self-declared (the app has no identity model); this is an
+ * attributable change record by convention, not authenticated identity.
+ */
+export type DispositionStatus = 'open' | 'accepted' | 'false-positive'
+
+export interface SeverityOverride {
+  from: 'critical' | 'high' | 'medium' | 'low' | 'informational'
+  to: 'critical' | 'high' | 'medium' | 'low' | 'informational'
+}
+
+export interface DispositionEntry {
+  /** Entry identifier (nanoid) — unique per log entry, not per finding. */
+  id: string
+  /** Stable finding key — see findingKey(). */
+  key: string
+  status: DispositionStatus
+  severityOverride?: SeverityOverride | null
+  /** Self-declared decision owner (required). */
+  name: string
+  /** Required free-text rationale. */
+  justification: string
+  /** ISO 8601 timestamp of when the action was recorded. */
+  at: string
+}
+
 export type NoteCategory = 'general' | 'todo' | 'assumption' | 'decision' | 'finding-response'
 
 export interface Note {
@@ -147,5 +182,11 @@ export interface ThreatModelProject {
   flows: DataFlow[]
   boundaries: TrustBoundary[]
   notes: Note[]
+  /**
+   * Append-only disposition log (#6). Latest entry per `key` is the
+   * current state. Old project files lack this field; the zod schema
+   * supplies a default of [] on load.
+   */
+  dispositions: DispositionEntry[]
   metadata?: Record<string, unknown>
 }
