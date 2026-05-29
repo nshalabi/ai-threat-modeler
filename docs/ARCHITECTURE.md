@@ -25,6 +25,29 @@ AI Threat Modeler is organized into four subsystems that work together to let us
 
 The **Modeling Engine** provides the visual canvas where users place components and draw data flows. The **Knowledge Engine** loads and indexes structured knowledge packs containing threats, controls, mitigations, and analysis rules. The **Analysis Engine** evaluates rules against the current project model to produce findings. The **Reporting Layer** displays findings, surfaces attack paths, manages per-finding risk-treatment dispositions (accept / false-positive / severity override), and exports the analyzed model with disposition history to PDF / DOCX / CSV.
 
+## Headless Core
+
+The analysis capability is **adapter-free**: the knowledge engine, analysis
+engine, disposition resolution, and report builders contain no React, no DOM,
+and no Electron. They live under `src/knowledge`, `src/analysis`, and
+`src/reports`, and run unchanged in a browser, in Electron, or in a plain Node
+process.
+
+`src/core/index.ts` is the **single documented entry point** for that core,
+re-exported through the `@core` path alias. Every consumer — the GUI renderer,
+and (planned) the CLI and MCP server — is a thin adapter that imports from
+`@core` rather than reaching into engine internals. This keeps the public
+surface explicit and lets the adapters evolve without destabilizing the engine.
+
+The core boundary covers knowledge packs, rule evaluation, attack-path
+traversal, disposition resolution, and report building. It does **not** cover
+the project lifecycle UI (canvas, Zustand stores) — those remain in the
+renderer.
+
+Path aliases: `@core` → the core barrel, `@shared` → `src/shared`, `@` →
+`src/renderer/src`. They are defined in `electron.vite.config.ts`,
+`vite.config.web.ts`, `tsconfig.web.json`, and `tsconfig.node.json`.
+
 ## Technology Stack
 
 | Technology | Purpose | Rationale |
@@ -69,7 +92,15 @@ ai-threat-modeler/
     analysis/           # Analysis engine
       engine.ts         #   AnalysisEngine class (evaluate rules)
       evaluator.ts      #   Condition evaluator logic
+      disposition.ts    #   Finding identity + disposition resolution
       types.ts          #   Analysis types (Rule, Finding, Condition)
+    reports/            # Report builders (adapter-free)
+      report-data.ts    #   Structured ReportData from project + findings
+      pdf-report.ts     #   PDF emitter
+      docx-report.ts    #   DOCX emitter
+      csv-report.ts     #   CSV emitter
+    core/               # Headless core
+      index.ts          #   Single documented public API (@core barrel)
   docs/                 # Documentation
   resources/            # App icons and static assets
   electron-builder.yml  # Electron Builder config
@@ -377,7 +408,7 @@ To map findings to a new framework:
 
 ### Single Package vs Monorepo
 
-**Chose single package.** The app is a single Electron application. Using a monorepo (e.g., separate packages for analysis engine, knowledge engine) would add tooling overhead without meaningful benefit at this stage. If the engines need to be reused independently, they can be extracted later.
+**Chose single package.** The app is a single Electron application. Using a monorepo (e.g., separate packages for analysis engine, knowledge engine) would add tooling overhead without meaningful benefit at this stage. The engines are nonetheless kept adapter-free behind the `@core` barrel (see [Headless Core](#headless-core)), so they can be reused by a CLI or MCP server — or extracted into separate packages — without further refactoring.
 
 ### React Flow vs D3 / Cytoscape
 

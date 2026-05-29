@@ -9,7 +9,7 @@
 import type { ThreatModelProject, DispositionStatus } from '@shared/types/model'
 import type { Finding } from '@shared/types/analysis'
 import type { Severity } from '@shared/types/knowledge'
-import { resolveDisposition } from '../../../analysis/disposition'
+import { resolveDisposition } from '../analysis/disposition'
 
 const SEVERITY_ORDER: Record<Severity, number> = {
   critical: 0,

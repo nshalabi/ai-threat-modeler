@@ -1,12 +1,14 @@
 import { useState, useRef, useEffect } from 'react'
 import { useProjectStore } from '../../stores/project-store'
-import { KnowledgeEngine } from '../../../../knowledge/engine'
-import { AnalysisEngine } from '../../../../analysis/engine'
-import { loadBuiltinPacks } from '../../../../knowledge/loader'
-import { buildReportData } from '../../reports/report-data'
-import { generatePdfReport } from '../../reports/pdf-report'
-import { generateDocxReport } from '../../reports/docx-report'
-import { generateCsvReport } from '../../reports/csv-report'
+import {
+  KnowledgeEngine,
+  AnalysisEngine,
+  loadBuiltinPacks,
+  buildReportData,
+  generatePdfReport,
+  generateDocxReport,
+  generateCsvReport
+} from '@core'
 import { platform } from '../../platform'
 
 export function Toolbar(): JSX.Element {
