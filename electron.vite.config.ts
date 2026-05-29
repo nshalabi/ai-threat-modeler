@@ -35,6 +35,7 @@ export default defineConfig({
       alias: {
         '@': resolve('src/renderer/src'),
         '@shared': resolve('src/shared'),
+        '@core/reports': resolve('src/core/reports.ts'),
         '@core': resolve('src/core/index.ts')
       }
     },

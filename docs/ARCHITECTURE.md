@@ -44,9 +44,56 @@ traversal, disposition resolution, and report building. It does **not** cover
 the project lifecycle UI (canvas, Zustand stores) — those remain in the
 renderer.
 
-Path aliases: `@core` → the core barrel, `@shared` → `src/shared`, `@` →
-`src/renderer/src`. They are defined in `electron.vite.config.ts`,
-`vite.config.web.ts`, `tsconfig.web.json`, and `tsconfig.node.json`.
+The core has two entry points so dependency-light consumers don't pay for the
+report stack:
+
+- `@core` — the analysis core: knowledge engine, analysis engine, evaluator,
+  disposition resolution, `buildReportData` (pure), the modeling vocabulary,
+  schemas, and domain types. No heavy runtime deps.
+- `@core/reports` — the report **formatters** (`generatePdfReport`,
+  `generateDocxReport`, `generateCsvReport`), which pull in browser-oriented
+  libraries (jsPDF + html2canvas + DOMPurify, the docx package). The GUI imports
+  these; the MCP server and the CLI's analyze path do not, so those adapters
+  bundle ~100 KB instead of ~1 MB.
+
+Path aliases: `@core` → the analysis-core barrel, `@core/reports` → the report
+formatters, `@shared` → `src/shared`, `@` → `src/renderer/src`. They are defined
+in `electron.vite.config.ts`, `vite.config.web.ts`, `tsconfig.web.json`, and
+`tsconfig.node.json`.
+
+### Adapters over the core
+
+| Adapter | Location | Role |
+|---|---|---|
+| **GUI** | `src/renderer`, `src/main` | The Electron + web app (canvas, stores, panels) |
+| **MCP server** | `packages/mcp` | Stateless MCP server exposing the engine to AI agents |
+| **CLI** (planned, #7) | — | CI gate over a committed `.aitm`, SARIF output |
+
+The **MCP server** (`packages/mcp`) is a thin, stateless adapter that lets AI
+agents (VS Code agent mode, Codex, Cursor, Claude) extract a threat model from
+arbitrary input and run the deterministic engine. It is published as a separate
+npm package (`ai-threat-modeler-mcp`), bundled with tsup into a single stdio
+executable that inlines `@core` and the knowledge packs.
+
+- **Stateless**: the agent (an LLM) holds the model in its own context and
+  passes it on every call. The server keeps no session — iteration
+  (build → validate → fix → analyze → revise) happens in the agent, not in
+  server state. No mutation tools, no server-side canvas.
+- **Tools**: discovery (`list_component_types`, `list_boundary_types`,
+  `list_rules`, `list_frameworks`), `validate_model` (canonical zod schema,
+  actionable errors), and `analyze_threat_model`.
+- **Boundary**: the MCP surface is the analysis engine only. Notes, disposition,
+  and risk acceptance are GUI application-layer concerns and are deliberately
+  absent.
+- **Result contract**: `analyze_threat_model` returns a versioned public shape
+  (`resultSchemaVersion`), mapped from the internal `AnalysisResult` and
+  decoupled from it — internal types may change; the contract evolves additively
+  only. Components/flows are surfaced by label, and each finding carries a stable
+  `key` (`ruleId` + sorted node/flow ids) so an agent can correlate findings
+  across re-analyses.
+
+See [`packages/mcp/README.md`](../packages/mcp/README.md) for the tool reference
+and host configuration.
 
 ## Technology Stack
 
@@ -100,7 +147,12 @@ ai-threat-modeler/
       docx-report.ts    #   DOCX emitter
       csv-report.ts     #   CSV emitter
     core/               # Headless core
-      index.ts          #   Single documented public API (@core barrel)
+      index.ts          #   Analysis-core public API (@core barrel)
+      reports.ts        #   Report-formatter entry point (@core/reports)
+  packages/             # Adapters published independently of the app
+    mcp/                #   MCP server (@core consumer; npm: ai-threat-modeler-mcp)
+      src/              #     server.ts, tools/, contract/, engine.ts
+      tsup.config.ts    #     bundles to a single stdio executable
   docs/                 # Documentation
   resources/            # App icons and static assets
   electron-builder.yml  # Electron Builder config
@@ -408,7 +460,14 @@ To map findings to a new framework:
 
 ### Single Package vs Monorepo
 
-**Chose single package.** The app is a single Electron application. Using a monorepo (e.g., separate packages for analysis engine, knowledge engine) would add tooling overhead without meaningful benefit at this stage. The engines are nonetheless kept adapter-free behind the `@core` barrel (see [Headless Core](#headless-core)), so they can be reused by a CLI or MCP server — or extracted into separate packages — without further refactoring.
+**Chose a light monorepo.** The Electron app remains a single package at the
+repo root; the engines stay adapter-free behind the `@core` barrel (see
+[Headless Core](#headless-core)). Independently distributable adapters live
+under `packages/` — currently `packages/mcp` (the MCP server, published to npm).
+Each such package is thin: it imports `@core` and is bundled standalone, so it
+ships without the Electron/React/report dependencies. This gives the reuse
+benefit of separate packages only where a separate distribution actually exists,
+without imposing full monorepo tooling on the app itself.
 
 ### React Flow vs D3 / Cytoscape
 

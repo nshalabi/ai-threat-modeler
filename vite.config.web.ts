@@ -24,6 +24,7 @@ export default defineConfig({
     alias: {
       '@': resolve(__dirname, 'src/renderer/src'),
       '@shared': resolve(__dirname, 'src/shared'),
+      '@core/reports': resolve(__dirname, 'src/core/reports.ts'),
       '@core': resolve(__dirname, 'src/core/index.ts')
     }
   },

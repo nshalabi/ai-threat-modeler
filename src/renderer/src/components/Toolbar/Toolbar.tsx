@@ -4,11 +4,9 @@ import {
   KnowledgeEngine,
   AnalysisEngine,
   loadBuiltinPacks,
-  buildReportData,
-  generatePdfReport,
-  generateDocxReport,
-  generateCsvReport
+  buildReportData
 } from '@core'
+import { generatePdfReport, generateDocxReport, generateCsvReport } from '@core/reports'
 import { platform } from '../../platform'
 
 export function Toolbar(): JSX.Element {

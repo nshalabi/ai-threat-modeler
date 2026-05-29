@@ -15,7 +15,8 @@
     "paths": {
       "@/*": ["src/renderer/src/*"],
       "@shared/*": ["src/shared/*"],
-      "@core": ["src/core/index.ts"]
+      "@core": ["src/core/index.ts"],
+      "@core/reports": ["src/core/reports.ts"]
     },
     "target": "ESNext",
     "lib": ["ESNext", "DOM", "DOM.Iterable"]

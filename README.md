@@ -25,6 +25,7 @@ AI Threat Modeler is a visual threat modeling tool specialized for AI systems, L
 - Transparent findings with rule IDs and a per-condition **"Why this fired"** derivation
 - Source-verified framework mapping: MITRE ATLAS, OWASP LLM Top 10 (2025), OWASP ML Top 10, NIST AI RMF, NIST CSF 2.0
 - Extensible knowledge packs for frameworks and threats
+- **MCP server** — let AI agents extract a model from requirements/designs/code and run the deterministic analysis ([guide](packages/mcp/))
 - Available as a web app (no install) and as a desktop app (Windows / macOS / Linux)
 - Local-first — desktop runs fully offline, web runs entirely client-side
 - JSON project files (.aitm) with import/export
@@ -66,6 +67,20 @@ The [`samples/`](samples/) directory contains ready-to-open `.aitm` projects tha
 | [`minimal-safe-architecture.aitm`](samples/minimal-safe-architecture.aitm) | A hardened reference architecture with recommended controls in place — useful as a contrast to the other samples. |
 
 After opening a sample, click **Analyze** in the toolbar to run the rules engine and see findings mapped to MITRE ATLAS, OWASP LLM Top 10, NIST AI RMF, and NIST CSF.
+
+## MCP Server — drive the engine from AI agents
+
+An [MCP](https://modelcontextprotocol.io) server exposes the same deterministic analysis engine to AI agents (VS Code agent mode, Codex, Cursor, Claude — any MCP host). The agent does the fuzzy extraction — turning a requirements doc, design, or codebase into a threat model — and the engine does the deterministic analysis. **No LLM judges the security posture**; the same rules the desktop app uses produce the findings.
+
+```jsonc
+{
+  "mcpServers": {
+    "ai-threat-modeler": { "command": "npx", "args": ["-y", "ai-threat-modeler-mcp"] }
+  }
+}
+```
+
+Tools: discovery (`list_component_types`, `list_boundary_types`, `list_rules`, `list_frameworks`), `validate_model`, and `analyze_threat_model` (returns a versioned, stable result contract). The server is stateless and read-only — no mutation tools, no governance surface. See [`packages/mcp/`](packages/mcp/) for the full guide.
 
 ## Technology
 

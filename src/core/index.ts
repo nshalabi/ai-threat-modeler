@@ -38,16 +38,27 @@ export {
   type ResolvedDisposition
 } from '../analysis/disposition'
 
-// --- Report building / emitters ---
+// --- Report data (pure; no heavy deps) ---
+// The report FORMATTERS (PDF/DOCX/CSV) live in the separate `@core/reports`
+// entry point — they pull in browser-oriented libs that dependency-light
+// consumers (MCP #11, CLI analyze #7) must not bundle.
 export {
   buildReportData,
   type ReportData,
   type ReportFinding,
   type ReportDispositionEntry
 } from '../reports/report-data'
-export { generatePdfReport } from '../reports/pdf-report'
-export { generateDocxReport } from '../reports/docx-report'
-export { generateCsvReport } from '../reports/csv-report'
+
+// --- Modeling vocabulary (discovery surface for CLI #7 / MCP #11) ---
+export {
+  COMPONENT_LIBRARY,
+  COMPONENT_MAP,
+  type ComponentDefinition
+} from '../shared/constants/component-library'
+export {
+  BOUNDARY_LIBRARY,
+  type BoundaryDefinition
+} from '../shared/constants/boundary-types'
 
 // --- Schemas ---
 export { validateProject } from '../shared/schemas/project-schema'
