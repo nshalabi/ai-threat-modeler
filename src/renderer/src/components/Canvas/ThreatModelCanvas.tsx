@@ -11,7 +11,8 @@ import {
   Node,
   Edge,
   NodeTypes,
-  Panel
+  Panel,
+  MarkerType
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useProjectStore } from '../../stores/project-store'
@@ -71,6 +72,16 @@ export function ThreatModelCanvas(): JSX.Element {
         target: flow.target,
         label: flow.label,
         animated: flow.properties.encrypted,
+        // Arrow at the target end. Flow direction is canonical in the data
+        // model (source -> target) and the engine traverses it — rendering
+        // the arrow surfaces information that was always there. Color matches
+        // the edge stroke so encrypted / highlighted states stay consistent.
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 18,
+          height: 18,
+          color: stroke
+        },
         style: {
           stroke,
           strokeWidth,
@@ -186,7 +197,13 @@ export function ThreatModelCanvas(): JSX.Element {
         fitView
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{
-          type: 'smoothstep',
+          // Bezier (the React Flow default) — curves diverge at the source,
+          // so two edges leaving the same node toward different targets no
+          // longer share a visual stalk before branching. Replaces the prior
+          // `smoothstep` (orthogonal) routing, which coalesced shared segments
+          // and was ambiguous both to humans and to AI agents reading
+          // screenshots of the canvas.
+          type: 'default',
           style: { stroke: '#64748b', strokeWidth: 2 }
         }}
       >
