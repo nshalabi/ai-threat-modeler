@@ -153,6 +153,19 @@
       }
     },
     {
+      "id": "flow-idp-to-gateway",
+      "source": "node-idp",
+      "target": "node-gateway",
+      "label": "Auth result",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
       "id": "flow-gateway-to-guardrail",
       "source": "node-gateway",
       "target": "node-guardrail",
@@ -312,6 +325,32 @@
         "authenticated": true,
         "dataClassification": "restricted",
         "dataTypes": ["credentials"]
+      }
+    },
+    {
+      "id": "flow-rag-to-gateway",
+      "source": "node-rag",
+      "target": "node-gateway",
+      "label": "Final response",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-gateway-to-user",
+      "source": "node-gateway",
+      "target": "node-user",
+      "label": "Response delivered",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
       }
     }
   ],

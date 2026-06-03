@@ -191,6 +191,19 @@
       }
     },
     {
+      "id": "flow-idp-to-webapp",
+      "source": "node-idp",
+      "target": "node-webapp",
+      "label": "Auth result",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
       "id": "flow-webapp-to-guardrail",
       "source": "node-webapp",
       "target": "node-guardrail",
@@ -332,6 +345,19 @@
         "dataClassification": "public",
         "dataTypes": ["model-outputs"],
         "crossesTrustBoundary": true
+      }
+    },
+    {
+      "id": "flow-webapp-to-secrets",
+      "source": "node-webapp",
+      "target": "node-secrets",
+      "label": "Credential request",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["credentials"]
       }
     },
     {

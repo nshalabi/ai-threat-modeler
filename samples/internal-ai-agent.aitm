@@ -281,6 +281,73 @@
         "dataClassification": "confidential",
         "dataTypes": ["prompts", "model-outputs", "pii"]
       }
+    },
+    {
+      "id": "flow-memory-to-agent",
+      "source": "node-memory-store",
+      "target": "node-agent",
+      "label": "Context Recall",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": false,
+        "authenticated": false,
+        "dataClassification": "confidential",
+        "dataTypes": ["prompts", "model-outputs", "pii"]
+      }
+    },
+    {
+      "id": "flow-database-to-db-tool",
+      "source": "node-database",
+      "target": "node-db-tool",
+      "label": "Query Results",
+      "properties": {
+        "protocol": "TCP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["general", "pii"]
+      }
+    },
+    {
+      "id": "flow-third-party-to-api-tool",
+      "source": "node-third-party-api",
+      "target": "node-api-tool",
+      "label": "API Response",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["general"],
+        "crossesTrustBoundary": true,
+        "crossesProviderBoundary": true
+      }
+    },
+    {
+      "id": "flow-agent-to-webapp",
+      "source": "node-agent",
+      "target": "node-webapp",
+      "label": "Agent Response",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
+    },
+    {
+      "id": "flow-webapp-to-employee",
+      "source": "node-webapp",
+      "target": "node-employee",
+      "label": "Answer",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "internal",
+        "dataTypes": ["model-outputs"]
+      }
     }
   ],
   "boundaries": [

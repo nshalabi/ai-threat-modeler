@@ -124,8 +124,20 @@
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "confidential",
-        "dataTypes": ["embeddings"],
-        "bidirectional": true
+        "dataTypes": ["embeddings"]
+      }
+    },
+    {
+      "id": "flow-vectordb-to-rag",
+      "source": "node-vector-store",
+      "target": "node-rag-orchestrator",
+      "label": "Retrieved Context",
+      "properties": {
+        "protocol": "HTTP",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["embeddings"]
       }
     },
     {

@@ -224,6 +224,19 @@
       }
     },
     {
+      "id": "flow-idp-webapp",
+      "source": "node-idp",
+      "target": "node-webapp",
+      "label": "Auth result",
+      "properties": {
+        "protocol": "HTTPS",
+        "encrypted": true,
+        "authenticated": true,
+        "dataClassification": "confidential",
+        "dataTypes": ["credentials"]
+      }
+    },
+    {
       "id": "flow-webapp-gateway",
       "source": "node-webapp",
       "target": "node-gateway",
