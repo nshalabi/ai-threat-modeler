@@ -54,66 +54,31 @@ export function ThreatModelCanvas(): JSX.Element {
 
   // Convert store flows to React Flow edges.
   //
-  // Bidirectional pair collapse: when two flows describe the same channel in
-  // opposite directions (A -> B and B -> A), render them as ONE edge with a
-  // double arrowhead — the visual convention every other threat modeling tool
-  // uses. The underlying DATA stays granular (two records, one per direction)
-  // so the engine still evaluates each direction's properties independently;
-  // findings are unchanged. Only the canvas collapses the visual.
+  // Bidirectional rendering is driven by the data, not inferred at render
+  // time: a flow whose `properties.bidirectional` is `true` is treated as a
+  // single channel and rendered with arrows at BOTH ends. Otherwise it's a
+  // single directed flow with one arrow at the target end. The modeler
+  // decides which kind of channel a connection is — the renderer never
+  // guesses by pair-detecting reversed endpoints. (An earlier attempt at
+  // pair detection conflated "same channel" with "same payload" and lost
+  // information for request/response pairs that genuinely carry different
+  // dataTypes per direction — different problem, different fix.)
+  //
+  // Engine semantics: bidirectional is a render + authoring concept only.
+  // The deterministic engine still traverses each record source -> target
+  // exactly once; rule fires are unchanged by setting the flag.
   const rfEdges: Edge[] = useMemo(() => {
     const highlightSet = new Set(highlightedFlowIds)
     const glowColor = highlightSeverity ? SEVERITY_HEX[highlightSeverity] : null
 
-    // Group flows by their unordered endpoint pair so we can detect partners
-    // (A -> B has a partner if B -> A also exists).
-    const pairKey = (a: string, b: string): string =>
-      a < b ? `${a}::${b}` : `${b}::${a}`
-    const flowsByPair = new Map<string, typeof project.flows>()
-    for (const flow of project.flows) {
-      const key = pairKey(flow.source, flow.target)
-      const list = flowsByPair.get(key) ?? []
-      list.push(flow)
-      flowsByPair.set(key, list)
-    }
-
-    const consumed = new Set<string>()
-    const edges: Edge[] = []
-
-    for (const flow of project.flows) {
-      if (consumed.has(flow.id)) continue
-
-      // A partner exists iff there's exactly one OTHER flow with reversed
-      // endpoints. We deliberately do not collapse 3+ flows between the same
-      // pair (rare/ambiguous) — those keep rendering individually.
-      const candidates = flowsByPair.get(pairKey(flow.source, flow.target)) ?? []
-      const partner =
-        candidates.length === 2
-          ? candidates.find(
-              (f) =>
-                f.id !== flow.id && f.source === flow.target && f.target === flow.source
-            )
-          : undefined
-      const bidirectional = partner !== undefined
-
-      // Highlight if EITHER edge of the pair is selected.
-      const isHighlighted =
-        highlightSet.has(flow.id) || (partner ? highlightSet.has(partner.id) : false)
-      const stroke =
-        isHighlighted && glowColor
-          ? glowColor
-          : flow.properties.encrypted
-            ? '#6366f1'
-            : '#64748b'
+    return project.flows.map((flow) => {
+      const isHighlighted = highlightSet.has(flow.id)
+      const stroke = isHighlighted && glowColor
+        ? glowColor
+        : flow.properties.encrypted
+          ? '#6366f1'
+          : '#64748b'
       const strokeWidth = isHighlighted ? 3.5 : 2
-
-      // For bidirectional pairs we surface both labels when they differ
-      // (e.g. "User Request / Answer") so the channel's two payloads are
-      // visible in one place.
-      const label =
-        bidirectional && partner!.label && partner!.label !== flow.label
-          ? `${flow.label} / ${partner!.label}`
-          : flow.label
-
       const marker = {
         type: MarkerType.ArrowClosed,
         width: 18,
@@ -121,14 +86,14 @@ export function ThreatModelCanvas(): JSX.Element {
         color: stroke
       }
 
-      edges.push({
+      return {
         id: flow.id,
         source: flow.source,
         target: flow.target,
-        label,
+        label: flow.label,
         animated: flow.properties.encrypted,
         markerEnd: marker,
-        ...(bidirectional ? { markerStart: marker } : {}),
+        ...(flow.properties.bidirectional ? { markerStart: marker } : {}),
         style: {
           stroke,
           strokeWidth,
@@ -144,13 +109,8 @@ export function ThreatModelCanvas(): JSX.Element {
           fill: '#1a1a24',
           fillOpacity: 0.9
         }
-      })
-
-      consumed.add(flow.id)
-      if (partner) consumed.add(partner.id)
-    }
-
-    return edges
+      }
+    })
   }, [project.flows, highlightedFlowIds, highlightSeverity])
 
   const [nodes, setNodes, onNodesChange] = useNodesState(rfNodes)

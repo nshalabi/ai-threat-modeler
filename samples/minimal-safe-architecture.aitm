@@ -178,29 +178,17 @@
       }
     },
     {
-      "id": "flow-webapp-to-idp",
+      "id": "flow-webapp-idp",
       "source": "node-webapp",
       "target": "node-idp",
-      "label": "HTTPS",
+      "label": "Authentication",
       "properties": {
         "protocol": "HTTPS",
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "internal",
-        "dataTypes": ["credentials"]
-      }
-    },
-    {
-      "id": "flow-idp-to-webapp",
-      "source": "node-idp",
-      "target": "node-webapp",
-      "label": "Auth result",
-      "properties": {
-        "protocol": "HTTPS",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "internal",
-        "dataTypes": ["credentials"]
+        "dataTypes": ["credentials"],
+        "bidirectional": true
       }
     },
     {

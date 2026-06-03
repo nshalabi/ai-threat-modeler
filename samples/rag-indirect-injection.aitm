@@ -214,26 +214,14 @@
       "id": "flow-webapp-idp",
       "source": "node-webapp",
       "target": "node-idp",
-      "label": "Authenticate",
+      "label": "Authentication",
       "properties": {
         "protocol": "HTTPS",
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "confidential",
-        "dataTypes": ["credentials"]
-      }
-    },
-    {
-      "id": "flow-idp-webapp",
-      "source": "node-idp",
-      "target": "node-webapp",
-      "label": "Auth result",
-      "properties": {
-        "protocol": "HTTPS",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "confidential",
-        "dataTypes": ["credentials"]
+        "dataTypes": ["credentials"],
+        "bidirectional": true
       }
     },
     {
@@ -305,26 +293,14 @@
       "id": "flow-rag-memory",
       "source": "node-rag",
       "target": "node-memory",
-      "label": "Store turn",
+      "label": "Conversation memory",
       "properties": {
         "protocol": "HTTPS",
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "internal",
-        "dataTypes": ["prompts"]
-      }
-    },
-    {
-      "id": "flow-memory-rag",
-      "source": "node-memory",
-      "target": "node-rag",
-      "label": "Prior context",
-      "properties": {
-        "protocol": "HTTPS",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "internal",
-        "dataTypes": ["prompts"]
+        "dataTypes": ["prompts"],
+        "bidirectional": true
       }
     },
     {
@@ -401,26 +377,14 @@
       "id": "flow-ordertool-crm",
       "source": "node-ordertool",
       "target": "node-crm",
-      "label": "Order query",
+      "label": "Order lookup",
       "properties": {
         "protocol": "HTTPS",
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "confidential",
-        "dataTypes": ["pii"]
-      }
-    },
-    {
-      "id": "flow-crm-ordertool",
-      "source": "node-crm",
-      "target": "node-ordertool",
-      "label": "Order data",
-      "properties": {
-        "protocol": "HTTPS",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "confidential",
-        "dataTypes": ["pii"]
+        "dataTypes": ["pii"],
+        "bidirectional": true
       }
     },
     {

@@ -115,29 +115,17 @@
       }
     },
     {
-      "id": "flow-rag-to-vectordb",
+      "id": "flow-rag-vectordb",
       "source": "node-rag-orchestrator",
       "target": "node-vector-store",
-      "label": "Embedding Lookup",
+      "label": "Vector retrieval",
       "properties": {
         "protocol": "HTTP",
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "confidential",
-        "dataTypes": ["embeddings"]
-      }
-    },
-    {
-      "id": "flow-vectordb-to-rag",
-      "source": "node-vector-store",
-      "target": "node-rag-orchestrator",
-      "label": "Retrieved Context",
-      "properties": {
-        "protocol": "HTTP",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "confidential",
-        "dataTypes": ["embeddings"]
+        "dataTypes": ["embeddings"],
+        "bidirectional": true
       }
     },
     {

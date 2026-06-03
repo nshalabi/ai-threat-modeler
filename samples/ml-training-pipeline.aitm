@@ -220,29 +220,17 @@
       }
     },
     {
-      "id": "flow-registry-to-eval",
+      "id": "flow-registry-eval",
       "source": "node-model-registry",
       "target": "node-eval-engine",
-      "label": "Model for evaluation",
+      "label": "Model evaluation",
       "properties": {
         "protocol": "HTTP",
         "encrypted": true,
         "authenticated": true,
         "dataClassification": "internal",
-        "dataTypes": ["general"]
-      }
-    },
-    {
-      "id": "flow-eval-to-registry",
-      "source": "node-eval-engine",
-      "target": "node-model-registry",
-      "label": "Evaluation results",
-      "properties": {
-        "protocol": "HTTP",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "internal",
-        "dataTypes": ["general"]
+        "dataTypes": ["general"],
+        "bidirectional": true
       }
     }
   ],

@@ -243,7 +243,7 @@
       "id": "flow-api-tool-to-third-party",
       "source": "node-api-tool",
       "target": "node-third-party-api",
-      "label": "External API Request",
+      "label": "External API call",
       "properties": {
         "protocol": "HTTPS",
         "encrypted": true,
@@ -251,7 +251,8 @@
         "dataClassification": "internal",
         "dataTypes": ["general"],
         "crossesTrustBoundary": true,
-        "crossesProviderBoundary": true
+        "crossesProviderBoundary": true,
+        "bidirectional": true
       }
     },
     {
@@ -273,26 +274,14 @@
       "id": "flow-agent-to-memory",
       "source": "node-agent",
       "target": "node-memory-store",
-      "label": "Context Persistence",
+      "label": "Conversation memory",
       "properties": {
         "protocol": "HTTP",
         "encrypted": false,
         "authenticated": false,
         "dataClassification": "confidential",
-        "dataTypes": ["prompts", "model-outputs", "pii"]
-      }
-    },
-    {
-      "id": "flow-memory-to-agent",
-      "source": "node-memory-store",
-      "target": "node-agent",
-      "label": "Context Recall",
-      "properties": {
-        "protocol": "HTTP",
-        "encrypted": false,
-        "authenticated": false,
-        "dataClassification": "confidential",
-        "dataTypes": ["prompts", "model-outputs", "pii"]
+        "dataTypes": ["prompts", "model-outputs", "pii"],
+        "bidirectional": true
       }
     },
     {
@@ -306,21 +295,6 @@
         "authenticated": true,
         "dataClassification": "confidential",
         "dataTypes": ["general", "pii"]
-      }
-    },
-    {
-      "id": "flow-third-party-to-api-tool",
-      "source": "node-third-party-api",
-      "target": "node-api-tool",
-      "label": "API Response",
-      "properties": {
-        "protocol": "HTTPS",
-        "encrypted": true,
-        "authenticated": true,
-        "dataClassification": "internal",
-        "dataTypes": ["general"],
-        "crossesTrustBoundary": true,
-        "crossesProviderBoundary": true
       }
     },
     {
