@@ -231,6 +231,19 @@ export function PropertyPanel(): JSX.Element {
           </FieldGroup>
 
           <div className="space-y-1.5">
+            <span className="text-[10px] font-medium text-[#94a3b8] uppercase tracking-wider">Channel</span>
+            <CheckboxField
+              label="Bidirectional"
+              checked={selectedFlow.properties.bidirectional ?? false}
+              onChange={(v) =>
+                updateFlow(selectedFlow.id, {
+                  properties: { ...selectedFlow.properties, bidirectional: v }
+                })
+              }
+            />
+          </div>
+
+          <div className="space-y-1.5">
             <span className="text-[10px] font-medium text-[#94a3b8] uppercase tracking-wider">Security</span>
             <CheckboxField
               label="Encrypted"

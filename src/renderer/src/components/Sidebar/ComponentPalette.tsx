@@ -1,10 +1,13 @@
 import { useState } from 'react'
 import { COMPONENT_LIBRARY } from '@shared/constants/component-library'
 import type { ComponentType } from '@shared/types/model'
+import { useProjectStore } from '../../stores/project-store'
 
 export function ComponentPalette(): JSX.Element {
   const [search, setSearch] = useState('')
   const [collapsedSections, setCollapsedSections] = useState<Record<string, boolean>>({})
+  const connectorMode = useProjectStore((s) => s.connectorMode)
+  const setConnectorMode = useProjectStore((s) => s.setConnectorMode)
 
   const filtered = COMPONENT_LIBRARY.filter(
     (c) =>
@@ -46,6 +49,29 @@ export function ComponentPalette(): JSX.Element {
 
       {/* Component list */}
       <div className="flex-1 overflow-y-auto px-2 py-2 space-y-1">
+        {/* Connectors — sets the "pen mode" for the next connection drawn
+            on the canvas. Items are clickable (not draggable): they toggle
+            between unidirectional and bidirectional channels. The choice
+            persists across multiple connections so the user can draw a run
+            of one kind without re-selecting each time. */}
+        <CategorySection
+          title="Connectors"
+          color="#10b981"
+          collapsed={collapsedSections['connectors'] ?? false}
+          onToggle={() => toggleSection('connectors')}
+        >
+          <ConnectorItem
+            kind="unidirectional"
+            active={connectorMode === 'unidirectional'}
+            onClick={() => setConnectorMode('unidirectional')}
+          />
+          <ConnectorItem
+            kind="bidirectional"
+            active={connectorMode === 'bidirectional'}
+            onClick={() => setConnectorMode('bidirectional')}
+          />
+        </CategorySection>
+
         {/* Standard section */}
         <CategorySection
           title="Standard"
@@ -146,5 +172,49 @@ function PaletteItem({
         {label}
       </span>
     </div>
+  )
+}
+
+function ConnectorItem({
+  kind,
+  active,
+  onClick
+}: {
+  kind: 'unidirectional' | 'bidirectional'
+  active: boolean
+  onClick: () => void
+}): JSX.Element {
+  const isUni = kind === 'unidirectional'
+  const arrow = isUni ? '→' : '↔'
+  const label = isUni ? 'Unidirectional' : 'Bidirectional'
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      title={
+        isUni
+          ? 'Next connection drawn becomes a single-direction flow (one arrow).'
+          : 'Next connection drawn becomes a bidirectional channel (arrows at both ends).'
+      }
+      className={`flex items-center gap-2 w-full px-2 py-1.5 rounded text-left
+                  transition-colors group
+                  ${
+                    active
+                      ? 'bg-[#22222e] border border-[#10b981]/50'
+                      : 'border border-transparent hover:bg-[#22222e]'
+                  }`}
+    >
+      <span
+        className={`text-sm font-mono ${active ? 'text-[#10b981]' : 'text-[#94a3b8] group-hover:text-[#e2e8f0]'}`}
+      >
+        {arrow}
+      </span>
+      <span
+        className={`text-xs transition-colors truncate ${active ? 'text-[#e2e8f0]' : 'text-[#94a3b8] group-hover:text-[#e2e8f0]'}`}
+      >
+        {label}
+      </span>
+      {active && <span className="ml-auto text-[9px] text-[#10b981] uppercase tracking-wider">active</span>}
+    </button>
   )
 }

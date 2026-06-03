@@ -60,6 +60,13 @@ interface ProjectState {
   // Share dialog visibility (web only)
   showShare: boolean
 
+  /** Connector pen mode (#12d): determines whether a connection drawn next
+   *  on the canvas becomes a unidirectional or bidirectional flow. Set from
+   *  the Connectors section in the component palette; persists across
+   *  multiple connections so the modeler can draw several of one kind in a
+   *  row. Pure UI state — never serialized to the .aitm file. */
+  connectorMode: 'unidirectional' | 'bidirectional'
+
   // Actions
   newProject: (name: string, description?: string) => void
   setProject: (project: ThreatModelProject, path?: string) => void
@@ -69,7 +76,7 @@ interface ProjectState {
   removeNode: (id: string) => void
   updateNodePosition: (id: string, position: { x: number; y: number }) => void
 
-  addFlow: (source: string, target: string, label?: string) => string
+  addFlow: (source: string, target: string, label?: string, bidirectional?: boolean) => string
   updateFlow: (id: string, updates: Partial<DataFlow>) => void
   removeFlow: (id: string) => void
 
@@ -99,6 +106,8 @@ interface ProjectState {
   setShowAbout: (show: boolean) => void
   setShowSamples: (show: boolean) => void
   setShowShare: (show: boolean) => void
+
+  setConnectorMode: (mode: 'unidirectional' | 'bidirectional') => void
 
   /** Append a disposition action for a finding (#6). Name + justification
    *  are required (UI enforces). Survives re-analysis via the stable key. */
@@ -150,6 +159,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
   showAbout: false,
   showSamples: false,
   showShare: false,
+  connectorMode: 'unidirectional',
 
   newProject: (name: string, description?: string) => {
     set({
@@ -254,7 +264,7 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
     }))
   },
 
-  addFlow: (source: string, target: string, label?: string) => {
+  addFlow: (source: string, target: string, label?: string, bidirectional?: boolean) => {
     const id = nanoid()
     const flow: DataFlow = {
       id,
@@ -265,7 +275,8 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
         encrypted: false,
         authenticated: false,
         dataClassification: 'internal',
-        dataTypes: ['general']
+        dataTypes: ['general'],
+        ...(bidirectional ? { bidirectional: true } : {})
       }
     }
 
@@ -564,6 +575,10 @@ export const useProjectStore = create<ProjectState>((set, get) => ({
 
   setShowShare: (show: boolean) => {
     set({ showShare: show })
+  },
+
+  setConnectorMode: (mode: 'unidirectional' | 'bidirectional') => {
+    set({ connectorMode: mode })
   },
 
   applyDisposition: (input) => {

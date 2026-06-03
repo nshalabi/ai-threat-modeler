@@ -33,6 +33,7 @@ export function ThreatModelCanvas(): JSX.Element {
   const updateNodePosition = useProjectStore((s) => s.updateNodePosition)
   const highlightedFlowIds = useProjectStore((s) => s.highlightedFlowIds)
   const highlightSeverity = useProjectStore((s) => s.highlightSeverity)
+  const connectorMode = useProjectStore((s) => s.connectorMode)
 
   const reactFlowWrapper = useRef<HTMLDivElement>(null)
 
@@ -125,14 +126,17 @@ export function ThreatModelCanvas(): JSX.Element {
     setEdges(rfEdges)
   }, [rfEdges, setEdges])
 
-  // Handle new connection
+  // Handle new connection. The currently selected connector pen (#12d —
+  // "Unidirectional" / "Bidirectional" in the Connectors palette section)
+  // determines the new flow's `bidirectional` property; the renderer then
+  // draws single or double arrow accordingly.
   const onConnect = useCallback(
     (params: Connection) => {
       if (params.source && params.target) {
-        addFlow(params.source, params.target)
+        addFlow(params.source, params.target, undefined, connectorMode === 'bidirectional')
       }
     },
-    [addFlow]
+    [addFlow, connectorMode]
   )
 
   // Handle node drag stop - update position in store
