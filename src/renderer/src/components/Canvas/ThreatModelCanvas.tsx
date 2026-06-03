@@ -11,17 +11,23 @@ import {
   Node,
   Edge,
   NodeTypes,
+  EdgeTypes,
   Panel,
   MarkerType
 } from '@xyflow/react'
 import '@xyflow/react/dist/style.css'
 import { useProjectStore } from '../../stores/project-store'
 import { ComponentNode } from './nodes/ComponentNode'
+import { ChannelEdge } from './edges/ChannelEdge'
 import type { ComponentType } from '@shared/types/model'
 import { SEVERITY_HEX } from '../../utils/severity-colors'
 
 const nodeTypes: NodeTypes = {
   component: ComponentNode
+}
+
+const edgeTypes: EdgeTypes = {
+  channel: ChannelEdge
 }
 
 export function ThreatModelCanvas(): JSX.Element {
@@ -72,6 +78,22 @@ export function ThreatModelCanvas(): JSX.Element {
     const highlightSet = new Set(highlightedFlowIds)
     const glowColor = highlightSeverity ? SEVERITY_HEX[highlightSeverity] : null
 
+    // Sibling detection (#12e): two flows that share the same unordered
+    // endpoint pair are visual siblings — even when they go in opposite
+    // directions. Each edge's siblingIndex / siblingCount tells the custom
+    // ChannelEdge whether to offset its curve and label so the pair runs
+    // parallel instead of crossing and the labels don't collide. Pure
+    // render-time grouping; the data records are unchanged.
+    const pairKey = (a: string, b: string): string =>
+      a < b ? `${a}::${b}` : `${b}::${a}`
+    const flowIdsByPair = new Map<string, string[]>()
+    for (const flow of project.flows) {
+      const key = pairKey(flow.source, flow.target)
+      const ids = flowIdsByPair.get(key) ?? []
+      ids.push(flow.id)
+      flowIdsByPair.set(key, ids)
+    }
+
     return project.flows.map((flow) => {
       const isHighlighted = highlightSet.has(flow.id)
       const stroke = isHighlighted && glowColor
@@ -87,11 +109,15 @@ export function ThreatModelCanvas(): JSX.Element {
         color: stroke
       }
 
+      const siblings = flowIdsByPair.get(pairKey(flow.source, flow.target)) ?? [flow.id]
+      const siblingIndex = siblings.indexOf(flow.id)
+      const siblingCount = siblings.length
+
       return {
         id: flow.id,
+        type: 'channel',
         source: flow.source,
         target: flow.target,
-        label: flow.label,
         animated: flow.properties.encrypted,
         markerEnd: marker,
         ...(flow.properties.bidirectional ? { markerStart: marker } : {}),
@@ -102,13 +128,20 @@ export function ThreatModelCanvas(): JSX.Element {
             ? { filter: `drop-shadow(0 0 6px ${glowColor}) drop-shadow(0 0 12px ${glowColor})` }
             : {})
         },
-        labelStyle: {
-          fill: '#94a3b8',
-          fontSize: 11
-        },
-        labelBgStyle: {
-          fill: '#1a1a24',
-          fillOpacity: 0.9
+        // The custom edge reads label + label styling out of `data` so it
+        // can position the label at the right progress along the path.
+        data: {
+          siblingIndex,
+          siblingCount,
+          label: flow.label,
+          labelStyle: {
+            fill: '#94a3b8',
+            fontSize: 11
+          },
+          labelBgStyle: {
+            fill: '#1a1a24',
+            fillOpacity: 0.9
+          }
         }
       }
     })
@@ -210,16 +243,16 @@ export function ThreatModelCanvas(): JSX.Element {
         onDragOver={onDragOver}
         onDrop={onDrop}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         proOptions={{ hideAttribution: true }}
         defaultEdgeOptions={{
-          // Bezier (the React Flow default) — curves diverge at the source,
-          // so two edges leaving the same node toward different targets no
-          // longer share a visual stalk before branching. Replaces the prior
-          // `smoothstep` (orthogonal) routing, which coalesced shared segments
-          // and was ambiguous both to humans and to AI agents reading
-          // screenshots of the canvas.
-          type: 'default',
+          // Custom sibling-aware channel edge (#12e). Paired flows over the
+          // same endpoint pair are auto-offset perpendicular to each other
+          // and their labels positioned at different path progresses so
+          // they no longer cross or collide. Falls back to a standard
+          // bezier when an edge has no sibling.
+          type: 'channel',
           style: { stroke: '#64748b', strokeWidth: 2 }
         }}
       >
